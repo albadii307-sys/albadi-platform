@@ -54,19 +54,22 @@ async function readLocal(): Promise<LocalDb> {
         changed = true;
       }
     }
-    if (changed) await writeLocal(db);
+    if (changed) await writeLocal(db).catch(() => undefined);
     return db;
   } catch {
     const initial = JSON.parse(JSON.stringify(seed)) as LocalDb;
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.writeFile(DATA_FILE, JSON.stringify(initial, null, 2), 'utf8');
+    await writeLocal(initial).catch(() => undefined);
     return initial;
   }
 }
 
 async function writeLocal(db: LocalDb) {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(db, null, 2), 'utf8');
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(DATA_FILE, JSON.stringify(db, null, 2), 'utf8');
+  } catch {
+    throw new Error('التخزين المحلي غير قابل للكتابة على هذا الخادم — اربط Supabase لتعديل المحتوى');
+  }
 }
 
 function matches(row: Row, where?: Query['where']) {

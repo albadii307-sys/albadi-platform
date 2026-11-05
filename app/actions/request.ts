@@ -40,6 +40,7 @@ export async function submitServiceRequest(
           service: 'يرجى اختيار الخدمة.',
           file: 'نوع الملف غير مدعوم أو الحجم أكبر من 5 ميجابايت.',
           generic: 'تعذّر إرسال الطلب، يرجى المحاولة مرة أخرى.',
+          unavailable: 'نموذج الطلبات غير مفعّل على هذه النسخة حالياً — يرجى التواصل معنا هاتفياً أو عبر البريد.',
         }
       : {
           name: 'Please enter your full name.',
@@ -48,6 +49,7 @@ export async function submitServiceRequest(
           service: 'Please choose a service.',
           file: 'Unsupported file type or file larger than 5 MB.',
           generic: 'Could not send the request. Please try again.',
+          unavailable: 'The request form is not available on this preview — please call or email us instead.',
         };
 
   if (name.length < 2) errors.name = msg.name;
@@ -68,9 +70,13 @@ export async function submitServiceRequest(
       const ext = file.name.split('.').pop()?.toLowerCase() ?? 'bin';
       const fileName = `${crypto.randomUUID()}.${ext}`;
       const dir = path.join(process.cwd(), 'public', 'uploads', 'requests');
-      await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(path.join(dir, fileName), Buffer.from(await file.arrayBuffer()));
-      attachmentUrl = `/uploads/requests/${fileName}`;
+      try {
+        await fs.mkdir(dir, { recursive: true });
+        await fs.writeFile(path.join(dir, fileName), Buffer.from(await file.arrayBuffer()));
+        attachmentUrl = `/uploads/requests/${fileName}`;
+      } catch {
+        return { status: 'error', message: msg.unavailable };
+      }
     }
   }
 
@@ -82,22 +88,27 @@ export async function submitServiceRequest(
   const year = new Date().getFullYear();
   const ref = `AB-${year}-${String(total + 1).padStart(4, '0')}`;
 
-  const record: ServiceRequest = await insert<ServiceRequest>('requests', {
-    ref,
-    service_id: service!.id,
-    sector_id: service!.sector_id,
-    service_name: service!.name_ar,
-    name,
-    company: company || null,
-    phone,
-    email,
-    message: message || null,
-    attachment_url: attachmentUrl,
-    status: 'new',
-    assignee: null,
-    notes: null,
-    locale,
-  });
+  let record: ServiceRequest;
+  try {
+    record = await insert<ServiceRequest>('requests', {
+      ref,
+      service_id: service!.id,
+      sector_id: service!.sector_id,
+      service_name: service!.name_ar,
+      name,
+      company: company || null,
+      phone,
+      email,
+      message: message || null,
+      attachment_url: attachmentUrl,
+      status: 'new',
+      assignee: null,
+      notes: null,
+      locale,
+    });
+  } catch {
+    return { status: 'error', message: msg.unavailable };
+  }
 
   await notifyTeam(record, service!).catch(() => undefined);
   revalidatePath('/admin');
