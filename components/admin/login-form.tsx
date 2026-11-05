@@ -33,7 +33,7 @@ export default function LoginForm({ demo }: { demo: boolean }) {
 
       {demo ? (
         <div className="login-note">
-          وضع المعاينة المحلي — بيانات الدخول مضبوطة في <b dir="ltr">.env.local</b> على الخادم.
+          وضع المعاينة — بيانات الدخول مضبوطة في متغيرات البيئة على الخادم.
           <br />
           عند ربط Supabase يتم التحقق من حسابات المستخدمين في قاعدة البيانات.
         </div>

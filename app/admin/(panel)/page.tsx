@@ -89,9 +89,18 @@ export default async function DashboardPage() {
       <div className="admin-content">
         {!isSupabaseConfigured ? (
           <div className="alert-admin">
-            <b>وضع المعاينة المحلي.</b> البيانات محفوظة في ملف <code dir="ltr">.data/db.json</code>. عند إضافة مفاتيح
-            Supabase في <code dir="ltr">.env.local</code> ينتقل الموقع تلقائياً إلى قاعدة البيانات السحابية.{' '}
-            <Link href="/admin/settings">إعدادات الشركة</Link>
+            {process.env.VERCEL ? (
+              <>
+                <b>وضع العرض فقط.</b> لم تُربط قاعدة بيانات بعد، فأي تعديل أو طلب جديد لن يُحفظ على هذه النسخة.{' '}
+                <Link href="/admin/settings">إعدادات الشركة</Link>
+              </>
+            ) : (
+              <>
+                <b>وضع المعاينة المحلي.</b> البيانات محفوظة في ملف <code dir="ltr">.data/db.json</code>. عند إضافة
+                مفاتيح Supabase في <code dir="ltr">.env.local</code> ينتقل الموقع تلقائياً إلى قاعدة البيانات
+                السحابية. <Link href="/admin/settings">إعدادات الشركة</Link>
+              </>
+            )}
           </div>
         ) : null}
 
