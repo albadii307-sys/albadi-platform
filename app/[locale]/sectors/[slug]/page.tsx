@@ -3,10 +3,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ServiceGrid from '@/components/service-grid';
 import SectorCompanies from '@/components/sector-companies';
+import SectorGallery from '@/components/sector-gallery';
 import { Counter } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Check, Phone, Pin } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { getCompanies, getProjects, getSector, getSectors, getServices } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/site-settings.server';
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
 
@@ -41,11 +43,12 @@ export default async function SectorPage({ params }: Params) {
   const sector = await getSector(slug);
   if (!sector) notFound();
 
-  const [services, sectors, projects, companies] = await Promise.all([
+  const [services, sectors, projects, companies, settings] = await Promise.all([
     getServices(sector.id),
     getSectors(),
     getProjects(false),
     getCompanies(),
+    getSiteSettings(),
   ]);
 
   const index = sectors.findIndex((item) => item.id === sector.id);
@@ -55,6 +58,12 @@ export default async function SectorPage({ params }: Params) {
   const sectorCompanies = companies.filter((company) => company.sector_id === sector.id);
   const body = pick(sector, 'body', locale);
   const name = pick(sector, 'name', locale);
+
+  const gallery = settings.gallery[sector.id] ?? [];
+  const workImages = gallery.length
+    ? gallery
+    : Array.from(new Set(related.map((project) => project.cover_url).filter((url): url is string => Boolean(url))));
+  const introCover = workImages[0] ?? sector.hero_url ?? '/media/projects/p4.webp';
 
   return (
     <>
@@ -155,12 +164,7 @@ export default async function SectorPage({ params }: Params) {
           <div className="x-sector-main">
             <div className="x-sector-intro">
               <div className="x-sector-intro-media reveal">
-                <img
-                  src={related[0]?.cover_url ?? sector.hero_url ?? '/media/projects/p4.webp'}
-                  alt={name}
-                  loading="lazy"
-                  data-parallax="0.035"
-                />
+                <img src={introCover} alt={name} loading="lazy" data-parallax="0.035" />
                 <span className="x-sector-intro-tag">
                   {ar ? `القطاع ${String(index + 1).padStart(2, '0')}` : `Sector ${String(index + 1).padStart(2, '0')}`}
                 </span>
@@ -196,6 +200,15 @@ export default async function SectorPage({ params }: Params) {
             </div>
 
             {body ? <article className="x-prose reveal" dangerouslySetInnerHTML={{ __html: body }} /> : null}
+
+            <SectorGallery
+              images={workImages}
+              name={name}
+              eyebrow={ar ? 'من أعمالنا' : 'Our work'}
+              title={ar ? 'صور من مشاريع' : 'Photographs from'}
+              accent={ar ? 'هذا القطاع.' : 'this sector.'}
+              countLabel={ar ? 'صورة' : 'Photo'}
+            />
 
             {services.length ? (
               <section className="x-sector-block">

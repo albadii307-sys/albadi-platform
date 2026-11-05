@@ -1,33 +1,8 @@
+import Link from 'next/link';
 import { isSupabaseConfigured } from '@/lib/db';
 import { getSiteSettings } from '@/lib/site-settings.server';
-import { Check, Upload, X } from '@/components/icons';
-import Repeater from '@/components/admin/repeater';
+import { Award, Check, Clock, ImageIcon, Upload, X } from '@/components/icons';
 import { saveSiteContent } from '@/app/admin/actions';
-
-const whyIcons = [
-  { value: 'award', label: 'خبرة / وسام' },
-  { value: 'layers', label: 'تنوّع / طبقات' },
-  { value: 'users', label: 'كوادر / أشخاص' },
-  { value: 'shield', label: 'جودة / درع' },
-  { value: 'leaf', label: 'استدامة / ورقة' },
-  { value: 'compass', label: 'رؤية / بوصلة' },
-];
-
-const whyFields = [
-  { name: 'icon', label: 'الأيقونة', type: 'select' as const, options: whyIcons },
-  { name: 'title_ar', label: 'العنوان (عربي)' },
-  { name: 'title_en', label: 'العنوان (إنجليزي)' },
-  { name: 'text_ar', label: 'الوصف (عربي)', wide: true },
-  { name: 'text_en', label: 'الوصف (إنجليزي)', wide: true },
-];
-
-const timelineFields = [
-  { name: 'year', label: 'السنة' },
-  { name: 'title_ar', label: 'العنوان (عربي)' },
-  { name: 'title_en', label: 'العنوان (إنجليزي)' },
-  { name: 'text_ar', label: 'الوصف (عربي)', wide: true },
-  { name: 'text_en', label: 'الوصف (إنجليزي)', wide: true },
-];
 
 const socialFields = [
   { key: 'instagram', label: 'Instagram', hint: 'https://www.instagram.com/…' },
@@ -189,21 +164,27 @@ export default async function SettingsPage({
 
           <div className="panel">
             <div className="panel-head">
-              <h2>لماذا مجموعة البادي</h2>
-              <span className="row-sub">البطاقات التي تظهر في الصفحة الرئيسية وصفحة عن المجموعة</span>
+              <h2>محتوى الصفحة الرئيسية</h2>
+              <span className="row-sub">لكل قسم قائمة مستقلة مع نافذة تعديل منبثقة</span>
             </div>
             <div className="panel-body">
-              <Repeater name="why_json" initial={settings.why} fields={whyFields} addLabel="إضافة بطاقة" />
-            </div>
-          </div>
-
-          <div className="panel">
-            <div className="panel-head">
-              <h2>محطات من مسيرتنا</h2>
-              <span className="row-sub">المحطات الزمنية التي تظهر في صفحة عن المجموعة</span>
-            </div>
-            <div className="panel-body">
-              <Repeater name="timeline_json" initial={settings.timeline} fields={timelineFields} addLabel="إضافة محطة" />
+              <div className="a-linkgrid">
+                <Link href="/admin/content/why" className="a-linkcard">
+                  <Award size={20} />
+                  <b>لماذا مجموعة البادي</b>
+                  <span>{settings.why.length} بطاقة — الأيقونة تُختار من داخل النافذة</span>
+                </Link>
+                <Link href="/admin/content/timeline" className="a-linkcard">
+                  <Clock size={20} />
+                  <b>محطات من مسيرتنا</b>
+                  <span>{settings.timeline.length} محطة — تظهر في الرئيسية وعن المجموعة</span>
+                </Link>
+                <Link href="/admin/galleries" className="a-linkcard">
+                  <ImageIcon size={20} />
+                  <b>صور أعمال القطاعات</b>
+                  <span>أضف عدة صور لكل قطاع</span>
+                </Link>
+              </div>
             </div>
           </div>
 

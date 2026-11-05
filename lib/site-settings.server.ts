@@ -1,6 +1,6 @@
 import { list } from './db';
 import type { Setting } from './types';
-import { defaultTimeline, defaultWhy, parseJson, siteDefaults, type SiteSettings } from './site-settings';
+import { defaultTimeline, defaultWhy, parseJson, parseMap, siteDefaults, type SiteSettings } from './site-settings';
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const rows = await list<Setting>('settings');
@@ -34,5 +34,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     },
     why: parseJson(map.get('why_cards'), defaultWhy),
     timeline: parseJson(map.get('timeline'), defaultTimeline),
+    gallery: parseMap<Record<string, string[]>>(map.get('sector_gallery'), {}),
   };
 }

@@ -12,6 +12,7 @@ import { TeamCard } from '@/components/team-grid';
 import NewsRail, { Rail } from '@/components/news-rail';
 import ServicesIndex, { type ServiceGroupItem } from '@/components/services-index';
 import SiteMap from '@/components/site-map';
+import Timeline from '@/components/timeline';
 import WhySection from '@/components/why-section';
 import { Counter, LiveClock } from '@/components/x-motion';
 import { getSiteSettings } from '@/lib/site-settings.server';
@@ -132,8 +133,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ? '«أول نشاط تجاري سُجل عام 1976، ومنذ ذلك الحين تواصل المجموعة بناء عُمان بكفاءات عُمانية — حتى بلغت نسبة التعمين في بعض الإدارات 100%.»'
     : '“Our first commercial activity was registered in 1976. Since then we have kept building Oman with Omani talent — reaching 100% Omanisation in some departments.”';
 
+  const quickLinks = [
+    { href: '#sectors', label: t.nav.sectors },
+    { href: '#services', label: t.nav.services },
+    { href: '#journey', label: ar ? 'محطات المسيرة' : 'Our journey' },
+    { href: '#projects', label: t.nav.projects },
+    { href: '#news', label: t.nav.news },
+    { href: '#location', label: t.nav.contact },
+  ];
+
   return (
-    <>
+    <div className="x-home">
       <section className="x-hero">
         <HeroMedia slides={heroSlides} />
         <div className="x-hero-fx" aria-hidden="true">
@@ -212,6 +222,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </div>
       </section>
+
+      <nav className="x-quicknav" aria-label={ar ? 'وصول سريع لأقسام الصفحة' : 'Quick page navigation'}>
+        <div className="container x-quicknav-row">
+          <span className="x-quicknav-label">{ar ? 'انتقل إلى' : 'Jump to'}</span>
+          {quickLinks.map((link) => (
+            <a key={link.href} href={link.href}>
+              {link.label}
+            </a>
+          ))}
+          <Link href={`/${locale}/request`} className="x-quicknav-cta">
+            {t.nav.request} <Arrow size={14} />
+          </Link>
+        </div>
+      </nav>
 
       <section className="x-intro" id="about">
         <div className="container">
@@ -305,6 +329,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           ar
             ? 'خبرة خمسة عقود، وقطاعات متكاملة، وكوادر عُمانية، ومعايير جودة معتمدة — هذا ما يجعل مجموعة البادي الخيار الأول لمشاريع عُمان.'
             : 'Five decades of experience, integrated sectors, Omani talent and certified quality — that is what makes Al-Badi the first choice for Oman’s projects.'
+        }
+      />
+
+      <Timeline
+        items={settings.timeline}
+        locale={locale}
+        eyebrow={ar ? 'محطات من مسيرتنا' : 'Milestones'}
+        title={ar ? 'خمسة عقود من' : 'Five decades of'}
+        accent={ar ? 'البناء والتوسّع.' : 'building and growth.'}
+        lead={
+          ar
+            ? 'من أول نشاط تجاري عام 1976 إلى منظومة قطاعات متكاملة — هذه أبرز المحطات في مسيرة المجموعة.'
+            : 'From the first commercial activity in 1976 to an integrated group of sectors — these are the milestones of our journey.'
         }
       />
 
@@ -410,8 +447,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <ServicesIndex
               groups={serviceGroups}
               locale={locale}
-              sectorLabel={ar ? 'القطاع' : 'Sector'}
-              requestLabel={ar ? 'اطلب' : 'Request'}
+              viewLabel={ar ? 'عرض خدمات القطاع' : 'View sector services'}
             />
           </div>
         </section>
@@ -661,6 +697,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </ol>
         </div>
       </section>
-    </>
+    </div>
   );
 }

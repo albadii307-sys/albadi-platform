@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
+  Award,
   Building,
+  Clock,
   Inbox,
   Layers,
   Layout,
@@ -31,6 +33,12 @@ const items = [
   { href: '/admin/collections/pages', label: 'الصفحات', icon: FileText },
   { href: '/admin/media', label: 'الوسائط', icon: ImageIcon },
   { href: '/admin/settings', label: 'إعدادات الموقع', icon: Settings },
+];
+
+const contentItems = [
+  { href: '/admin/content/why', label: 'لماذا مجموعة البادي', icon: Award },
+  { href: '/admin/content/timeline', label: 'محطات من مسيرتنا', icon: Clock },
+  { href: '/admin/galleries', label: 'صور أعمال القطاعات', icon: ImageIcon },
 ];
 
 export default function AdminSidebar({ email, role, logo }: { email: string; role: string; logo: string }) {
@@ -87,6 +95,20 @@ export default function AdminSidebar({ email, role, logo }: { email: string; rol
               href={item.href}
               onClick={() => setOpen(false)}
               aria-current={pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href)) ? 'page' : undefined}
+            >
+              <item.icon size={17} /> {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <span className="admin-label">الصفحة الرئيسية</span>
+        <nav className="admin-nav">
+          {contentItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              aria-current={pathname.startsWith(item.href) ? 'page' : undefined}
             >
               <item.icon size={17} /> {item.label}
             </Link>

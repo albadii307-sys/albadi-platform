@@ -151,6 +151,7 @@ export type SiteSettings = {
   hoursAr: string;
   hoursEn: string;
   social: Record<SocialKey, string>;
+  gallery: Record<string, string[]>;
   why: WhyCard[];
   timeline: Milestone[];
 };
@@ -160,6 +161,16 @@ export function parseJson<T>(raw: string | undefined, fallback: T): T {
   try {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) && parsed.length ? (parsed as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+export function parseMap<T extends object>(raw: string | undefined, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && Object.keys(parsed).length ? (parsed as T) : fallback;
   } catch {
     return fallback;
   }

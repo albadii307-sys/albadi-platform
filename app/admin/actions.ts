@@ -187,18 +187,73 @@ export async function saveSiteContent(formData: FormData) {
     await setSetting(key, text(key));
   }
 
-  const parse = (field: string) => {
-    try {
-      return JSON.parse(String(formData.get(field) ?? '[]'));
-    } catch {
-      return [];
-    }
-  };
-
-  await setSetting('why_cards', JSON.stringify(cleanRows(parse('why_json'), defaultWhy)));
-  await setSetting('timeline', JSON.stringify(cleanRows(parse('timeline_json'), defaultTimeline)));
-
   revalidatePath('/', 'layout');
   revalidatePath('/admin/settings');
   redirect('/admin/settings?saved=1');
+}
+
+function rowsFrom(formData: FormData, field: string, fallback: Record<string, string>[]) {
+  try {
+    return cleanRows(JSON.parse(String(formData.get(field) ?? '[]')), fallback);
+  } catch {
+    return fallback;
+  }
+}
+
+export async function saveWhyCards(formData: FormData) {
+  await requireSession();
+  await setSetting('why_cards', JSON.stringify(rowsFrom(formData, 'rows', defaultWhy)));
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/content/why');
+  redirect('/admin/content/why?saved=1');
+}
+
+export async function saveTimeline(formData: FormData) {
+  await requireSession();
+  await setSetting('timeline', JSON.stringify(rowsFrom(formData, 'rows', defaultTimeline)));
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/content/timeline');
+  redirect('/admin/content/timeline?saved=1');
+}
+
+export async function saveSectorGallery(formData: FormData) {
+  await requireSession();
+  const sectorId = String(formData.get('sector_id') ?? '').trim();
+
+  let urls: string[] = [];
+  try {
+    const parsed = JSON.parse(String(formData.get('images') ?? '[]'));
+    if (Array.isArray(parsed)) {
+      urls = parsed.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+    }
+  } catch {
+    urls = [];
+  }
+
+  for (const entry of formData.getAll('files')) {
+    if (!(entry instanceof File) || entry.size === 0) continue;
+    const uploaded = await saveUpload(entry, 'sectors');
+    if (uploaded) urls.push(uploaded);
+  }
+
+  const existing = await getOne<Setting>('settings', { key: 'sector_gallery' });
+  let gallery: Record<string, string[]> = {};
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing.value);
+      if (parsed && typeof parsed === 'object') gallery = parsed as Record<string, string[]>;
+    } catch {
+      gallery = {};
+    }
+  }
+
+  if (sectorId) {
+    if (urls.length) gallery[sectorId] = urls;
+    else delete gallery[sectorId];
+  }
+
+  await setSetting('sector_gallery', JSON.stringify(gallery));
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/galleries');
+  redirect('/admin/galleries?saved=1');
 }

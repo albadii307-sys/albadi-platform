@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowUpRight } from './icons';
 import type { Locale } from '@/lib/i18n';
+import { servicesCount } from '@/lib/plural';
 
 export type ServiceGroupItem = {
   id: string;
@@ -12,38 +13,36 @@ export type ServiceGroupItem = {
 export default function ServicesIndex({
   groups,
   locale,
-  sectorLabel,
-  requestLabel,
+  viewLabel,
 }: {
   groups: ServiceGroupItem[];
   locale: Locale;
-  sectorLabel: string;
-  requestLabel: string;
+  viewLabel: string;
 }) {
   return (
-    <div className="x-svcx-grid">
+    <div className="x-svcards">
       {groups.map((group, groupIndex) => (
-        <section className="x-svcx-group reveal" key={group.id}>
-          <header className="x-svcx-head">
-            <span className="x-svcx-n">{String(groupIndex + 1).padStart(2, '0')}</span>
-            <h3>{group.name}</h3>
-            <Link href={`/${locale}/sectors/${group.slug}`} className="x-svcx-sector">
-              {sectorLabel}
-              <ArrowUpRight size={14} />
-            </Link>
-          </header>
-          <ul className="x-svcx-list">
-            {group.services.map((service) => (
-              <li key={service.id}>
-                <Link href={`/${locale}/request?service=${service.id}`}>
-                  <span>{service.name}</span>
-                  <em>{requestLabel}</em>
-                  <ArrowUpRight size={14} />
-                </Link>
-              </li>
+        <Link
+          href={`/${locale}/sectors/${group.slug}`}
+          className="x-svcard reveal"
+          key={group.id}
+          style={{ transitionDelay: `${Math.min(groupIndex * 40, 240)}ms` }}
+        >
+          <span className="x-svcard-top">
+            <span className="x-svcard-sector">{servicesCount(group.services.length, locale)}</span>
+            <ArrowUpRight size={15} />
+          </span>
+          <h3>{group.name}</h3>
+          <ul className="x-svcard-tags">
+            {group.services.slice(0, 2).map((service) => (
+              <li key={service.id}>{service.name}</li>
             ))}
+            {group.services.length > 2 ? (
+              <li className="is-more">+{group.services.length - 2}</li>
+            ) : null}
           </ul>
-        </section>
+          <span className="x-svcard-cta">{viewLabel}</span>
+        </Link>
       ))}
     </div>
   );
