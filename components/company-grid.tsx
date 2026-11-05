@@ -12,6 +12,7 @@ export type CompanyItem = {
   sectorSlug: string;
   website: string | null;
   logo: string | null;
+  photo?: string | null;
 };
 
 const prefixes = ['شركة', 'مؤسسة', 'فندق', 'مدرسة', 'مجموعة'];
@@ -38,6 +39,9 @@ export function CompanyCard({ item, index, locale }: { item: CompanyItem; index:
       }}
     >
       <span className="x-co-spot" aria-hidden="true" />
+      {item.photo ? (
+        <span className="x-co-bg" style={{ backgroundImage: `url(${item.photo})` }} aria-hidden="true" />
+      ) : null}
       <span className="x-co-n">{String(index + 1).padStart(2, '0')}</span>
       {item.logo ? (
         <span className="x-co-logo">

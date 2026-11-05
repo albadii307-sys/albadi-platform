@@ -5,6 +5,7 @@ import { isLocale, getDict, pick, type Locale } from '@/lib/i18n';
 import { getCompanies, getNews, getProjects, getSectors, getServices, getTeam } from '@/lib/queries';
 import { companiesCount, enginesCount, sectorsCount } from '@/lib/plural';
 import { NewsCard } from '@/components/cards';
+import HeroMedia from '@/components/hero-media';
 import SectorShowcase from '@/components/sector-showcase';
 import { CompanyCard } from '@/components/company-grid';
 import { TeamCard } from '@/components/team-grid';
@@ -13,6 +14,18 @@ import ServicesIndex, { type ServiceGroupItem } from '@/components/services-inde
 import SiteMap from '@/components/site-map';
 import { Counter, LiveClock } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Clock, Mail, Pin, Phone } from '@/components/icons';
+
+const SECTOR_MEDIA: Record<string, { image: string; logo?: string }> = {
+  contracting: { image: '/media/projects/p5.webp', logo: '/media/companies/co-contracting.webp' },
+  'aluminium-wood-steel': { image: '/media/projects/p1.webp', logo: '/media/companies/co-aluminium.webp' },
+  'trade-import': { image: '/media/projects/p9.webp', logo: '/media/companies/co-trade.webp' },
+  'roads-bridges': { image: '/media/projects/p7.webp' },
+  'sand-gravel': { image: '/media/projects/p8.webp', logo: '/media/companies/co-mining.webp' },
+  'elevators-hvac': { image: '/media/projects/p10.webp', logo: '/media/companies/co-elevators.webp' },
+  'green-oasis-hotel': { image: '/media/csr/c2.webp', logo: '/media/companies/co-hotel.webp' },
+  'concrete-interlock': { image: '/media/projects/p11.webp', logo: '/media/companies/co-concrete.webp' },
+  'saham-private-school': { image: '/media/projects/p2.webp', logo: '/media/companies/co-school.webp' },
+};
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -54,6 +67,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     name: pick(sector, 'name', locale),
     tagline: pick(sector, 'tagline', locale) || pick(sector, 'summary', locale),
     services: serviceCount.get(sector.id) ?? 0,
+    image: SECTOR_MEDIA[sector.slug]?.image ?? '/media/projects/p4.webp',
+    logo: SECTOR_MEDIA[sector.slug]?.logo ?? null,
   }));
 
   const companyItems = companies.map((company) => {
@@ -67,6 +82,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       sectorSlug: sector?.slug ?? '',
       website: company.website,
       logo: company.logo_url,
+      photo: sector ? SECTOR_MEDIA[sector.slug]?.image ?? null : null,
     };
   });
 
@@ -102,6 +118,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ];
 
   const heroLines = ar ? ['نبني عُمان', 'منذ'] : ['Building Oman', 'since'];
+  const heroSlides = [
+    { src: '/media/hero/hero-1.webp', label: ar ? 'مشاريع المقاولات والبناء' : 'Contracting & construction' },
+    { src: '/media/hero/hero-2.webp', label: ar ? 'مجمعات ومبانٍ حكومية' : 'Government complexes' },
+    { src: '/media/hero/hero-3.webp', label: ar ? 'الطرق والبنية الأساسية' : 'Roads & infrastructure' },
+    { src: '/media/hero/hero-4.webp', label: ar ? 'التعدين والمحاجر' : 'Mining & quarries' },
+  ];
   const quote = ar
     ? '«أول نشاط تجاري سُجل عام 1976، ومنذ ذلك الحين تواصل المجموعة بناء عُمان بكفاءات عُمانية — حتى بلغت نسبة التعمين في بعض الإدارات 100%.»'
     : '“Our first commercial activity was registered in 1976. Since then we have kept building Oman with Omani talent — reaching 100% Omanisation in some departments.”';
@@ -109,6 +131,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <section className="x-hero">
+        <HeroMedia slides={heroSlides} />
         <div className="x-hero-fx" aria-hidden="true">
           <span className="x-hero-glow" />
           <span className="x-hero-grid" />
