@@ -17,11 +17,12 @@ export default async function CollectionListPage({ params }: Params) {
   const collection = collections[key];
   if (!collection) notFound();
 
-  const rows = await list<Record<string, unknown>>(collection.table, {
-    order: collection.listFields.includes('published_at')
-      ? { column: 'published_at', ascending: false }
-      : { column: 'sort_order', ascending: true },
-  });
+  const order = collection.listFields.includes('published_at')
+    ? { column: 'published_at', ascending: false }
+    : collection.fields.some((field) => field.name === 'sort_order')
+      ? { column: 'sort_order', ascending: true }
+      : { column: collection.titleField, ascending: true };
+  const rows = await list<Record<string, unknown>>(collection.table, { order });
 
   const relations: Record<string, { id: string; label: string }[]> = {};
   if (collection.fields.some((field) => field.relation === 'sectors')) {

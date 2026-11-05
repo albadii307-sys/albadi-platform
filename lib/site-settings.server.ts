@@ -1,6 +1,22 @@
 import { list } from './db';
 import type { Setting } from './types';
-import { defaultTimeline, defaultWhy, parseJson, parseMap, siteDefaults, type SiteSettings } from './site-settings';
+import {
+  defaultTimeline,
+  defaultTypography,
+  defaultWhy,
+  isFontKey,
+  parseJson,
+  parseMap,
+  siteDefaults,
+  type SiteSettings,
+  type Typography,
+} from './site-settings';
+
+function numberSetting(raw: string | undefined, fallback: number, min: number, max: number) {
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, parsed));
+}
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const rows = await list<Setting>('settings');
@@ -9,6 +25,17 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   const value = (key: keyof typeof siteDefaults) => {
     const stored = map.get(key)?.trim();
     return stored || siteDefaults[key];
+  };
+
+  const typography: Typography = {
+    bodyFont: isFontKey(map.get('type_body_font')) ? (map.get('type_body_font') as Typography['bodyFont']) : defaultTypography.bodyFont,
+    headingFont: isFontKey(map.get('type_heading_font'))
+      ? (map.get('type_heading_font') as Typography['headingFont'])
+      : defaultTypography.headingFont,
+    baseSize: numberSetting(map.get('type_base_size'), defaultTypography.baseSize, 14, 20),
+    lineHeight: numberSetting(map.get('type_line_height'), defaultTypography.lineHeight, 1.3, 2.2),
+    letterSpacing: numberSetting(map.get('type_letter_spacing'), defaultTypography.letterSpacing, -1, 3),
+    headingWeight: numberSetting(map.get('type_heading_weight'), defaultTypography.headingWeight, 400, 800),
   };
 
   return {
@@ -35,5 +62,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     why: parseJson(map.get('why_cards'), defaultWhy),
     timeline: parseJson(map.get('timeline'), defaultTimeline),
     gallery: parseMap<Record<string, string[]>>(map.get('sector_gallery'), {}),
+    typography,
   };
 }

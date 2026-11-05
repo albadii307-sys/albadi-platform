@@ -6,6 +6,8 @@ import RequestForm from '@/components/request-form';
 import { Check, Phone, Mail, Clock } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { getSectors, getServices } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/site-settings.server';
+import { siteHours, telHref } from '@/lib/site-settings';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -31,7 +33,7 @@ export default async function RequestPage({
   const { service, sector } = await searchParams;
   const t = getDict(locale);
 
-  const [sectors, services] = await Promise.all([getSectors(), getServices()]);
+  const [sectors, services, settings] = await Promise.all([getSectors(), getServices(), getSiteSettings()]);
   const selected = services.find((item) => item.id === service);
 
   return (
@@ -57,7 +59,7 @@ export default async function RequestPage({
                     <div>
                       <b>{t.contact.phone}</b>
                       <span dir="ltr">
-                        <a href="tel:+96826854411">+968 26 854 411</a>
+                        <a href={telHref(settings.phone)}>{settings.phone}</a>
                       </span>
                     </div>
                   </div>
@@ -67,7 +69,9 @@ export default async function RequestPage({
                     </div>
                     <div>
                       <b>{t.contact.email}</b>
-                      <a href="mailto:albadi@albadigroup.com">albadi@albadigroup.com</a>
+                      <a href={`mailto:${settings.email}`} dir="ltr">
+                        {settings.email}
+                      </a>
                     </div>
                   </div>
                   <div className="contact-item">
@@ -76,7 +80,7 @@ export default async function RequestPage({
                     </div>
                     <div>
                       <b>{t.contact.hours}</b>
-                      <span>{t.contact.hoursValue}</span>
+                      <span>{siteHours(locale, settings)}</span>
                     </div>
                   </div>
                 </div>

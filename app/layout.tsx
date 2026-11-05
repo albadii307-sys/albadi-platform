@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { IBM_Plex_Sans_Arabic } from 'next/font/google';
+import { IBM_Plex_Sans_Arabic, Cairo, Tajawal, Almarai, Noto_Kufi_Arabic, Amiri } from 'next/font/google';
 import './globals.css';
 import './exclusive.css';
 
@@ -10,6 +10,48 @@ const arabic = IBM_Plex_Sans_Arabic({
   variable: '--font-arabic',
   display: 'swap',
 });
+
+const cairo = Cairo({
+  subsets: ['arabic', 'latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-cairo',
+  display: 'swap',
+  preload: false,
+});
+
+const tajawal = Tajawal({
+  subsets: ['arabic'],
+  weight: ['400', '700'],
+  variable: '--font-tajawal',
+  display: 'swap',
+  preload: false,
+});
+
+const almarai = Almarai({
+  subsets: ['arabic'],
+  weight: ['400', '700', '800'],
+  variable: '--font-almarai',
+  display: 'swap',
+  preload: false,
+});
+
+const notoKufi = Noto_Kufi_Arabic({
+  subsets: ['arabic'],
+  weight: ['400', '600', '700'],
+  variable: '--font-noto-kufi',
+  display: 'swap',
+  preload: false,
+});
+
+const amiri = Amiri({
+  subsets: ['arabic', 'latin'],
+  weight: ['400', '700'],
+  variable: '--font-amiri',
+  display: 'swap',
+  preload: false,
+});
+
+const fontVars = [arabic.variable, cairo.variable, tajawal.variable, almarai.variable, notoKufi.variable, amiri.variable].join(' ');
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.albadigroup.com'),
@@ -27,7 +69,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = store.get('x-locale') === 'en' ? 'en' : 'ar';
 
   return (
-    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={arabic.variable}>
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'} className={fontVars}>
       <body>
         <noscript>
           <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>

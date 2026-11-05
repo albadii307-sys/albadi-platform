@@ -72,6 +72,14 @@ export default async function NewsDetailPage({ params }: Params) {
             <p style={{ color: 'var(--muted)' }}>{pick(item, 'excerpt', locale)}</p>
           )}
 
+          {item.external_url ? (
+            <div style={{ marginTop: 28 }}>
+              <a href={item.external_url} className="btn btn-dark" target="_blank" rel="noopener noreferrer">
+                {locale === 'ar' ? 'قراءة الخبر من المصدر' : 'Read the full story at source'}
+              </a>
+            </div>
+          ) : null}
+
           <div style={{ marginTop: 40 }}>
             <Link href={`/${locale}/news`} className="btn btn-ghost">
               {t.nav.news} <Arrow size={16} />

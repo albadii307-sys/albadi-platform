@@ -6,6 +6,7 @@ import { ScrollFX } from '@/components/x-motion';
 import { isLocale, getDict, locales, type Locale } from '@/lib/i18n';
 import { getCompanies, getSectors, getServices } from '@/lib/queries';
 import { getSiteSettings } from '@/lib/site-settings.server';
+import { fontOptions } from '@/lib/site-settings';
 
 export const revalidate = 60;
 
@@ -51,8 +52,14 @@ export default async function LocaleLayout({
     getSiteSettings(),
   ]);
 
+  const typo = settings.typography;
+  const bodyStack = fontOptions.find((font) => font.key === typo.bodyFont)?.stack ?? fontOptions[0].stack;
+  const headingStack = fontOptions.find((font) => font.key === typo.headingFont)?.stack ?? fontOptions[0].stack;
+  const typeCss = `:root{--site-body-font:${bodyStack};--site-heading-font:${headingStack};--site-line-height:${typo.lineHeight};--site-letter-spacing:${typo.letterSpacing}px;--site-heading-weight:${typo.headingWeight};font-size:${typo.baseSize}px}`;
+
   return (
     <>
+      <style dangerouslySetInnerHTML={{ __html: typeCss }} />
       <ScrollFX />
       <SiteHeader locale={locale} sectors={sectors} companies={companies} services={services} settings={settings} />
       <main id="main">{children}</main>

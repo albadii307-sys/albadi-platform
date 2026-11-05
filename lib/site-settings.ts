@@ -18,6 +18,40 @@ export type Milestone = {
 
 export type SocialKey = 'instagram' | 'x' | 'linkedin' | 'facebook' | 'youtube' | 'whatsapp';
 
+export type FontKey = 'plex' | 'cairo' | 'tajawal' | 'almarai' | 'notoKufi' | 'amiri' | 'system';
+
+export const fontOptions: { key: FontKey; label: string; stack: string }[] = [
+  { key: 'plex', label: 'IBM Plex Sans Arabic (الافتراضي)', stack: 'var(--font-arabic), "Segoe UI", system-ui, sans-serif' },
+  { key: 'cairo', label: 'Cairo', stack: 'var(--font-cairo), var(--font-arabic), sans-serif' },
+  { key: 'tajawal', label: 'Tajawal', stack: 'var(--font-tajawal), var(--font-arabic), sans-serif' },
+  { key: 'almarai', label: 'Almarai', stack: 'var(--font-almarai), var(--font-arabic), sans-serif' },
+  { key: 'notoKufi', label: 'Noto Kufi Arabic', stack: 'var(--font-noto-kufi), var(--font-arabic), sans-serif' },
+  { key: 'amiri', label: 'Amiri (خط نسخي)', stack: 'var(--font-amiri), var(--font-arabic), serif' },
+  { key: 'system', label: 'خط النظام', stack: 'system-ui, "Segoe UI", Tahoma, Arial, sans-serif' },
+];
+
+export type Typography = {
+  bodyFont: FontKey;
+  headingFont: FontKey;
+  baseSize: number;
+  lineHeight: number;
+  letterSpacing: number;
+  headingWeight: number;
+};
+
+export const defaultTypography: Typography = {
+  bodyFont: 'plex',
+  headingFont: 'plex',
+  baseSize: 16,
+  lineHeight: 1.75,
+  letterSpacing: 0,
+  headingWeight: 600,
+};
+
+export function isFontKey(value: string | undefined): value is FontKey {
+  return fontOptions.some((font) => font.key === value);
+}
+
 export const socialMeta: { key: SocialKey; label: string }[] = [
   { key: 'instagram', label: 'Instagram' },
   { key: 'x', label: 'X (Twitter)' },
@@ -154,6 +188,7 @@ export type SiteSettings = {
   gallery: Record<string, string[]>;
   why: WhyCard[];
   timeline: Milestone[];
+  typography: Typography;
 };
 
 export function parseJson<T>(raw: string | undefined, fallback: T): T {

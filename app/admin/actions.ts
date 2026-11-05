@@ -6,6 +6,7 @@ import { getOne, insert, remove, update } from '@/lib/db';
 import { collections } from '@/lib/collections';
 import { login, logout, requireSession } from '@/lib/auth';
 import { saveUpload } from '@/lib/uploads';
+import { sanitizeRichHtml } from '@/lib/sanitize';
 import { defaultTimeline, defaultWhy } from '@/lib/site-settings';
 import type { Setting } from '@/lib/types';
 
@@ -60,6 +61,8 @@ export async function saveCollectionItem(collectionKey: string, id: string | nul
       values[field.name] = raw !== '' && Number.isFinite(number) ? number : null;
     } else if (field.type === 'relation') {
       values[field.name] = raw ? String(raw) : null;
+    } else if (field.type === 'richtext') {
+      values[field.name] = raw ? sanitizeRichHtml(String(raw)) : '';
     } else {
       values[field.name] = raw ? String(raw).trim() : '';
     }
@@ -180,6 +183,12 @@ export async function saveSiteContent(formData: FormData) {
     'social_facebook',
     'social_youtube',
     'social_whatsapp',
+    'type_body_font',
+    'type_heading_font',
+    'type_base_size',
+    'type_line_height',
+    'type_letter_spacing',
+    'type_heading_weight',
   ];
 
   await setSetting('logo_url', logo);

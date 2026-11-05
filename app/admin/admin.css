@@ -592,6 +592,10 @@
 }
 
 @media (max-width: 1024px) {
+  .admin-body {
+    overflow-x: clip;
+  }
+
   .admin-shell {
     grid-template-columns: 1fr;
   }
@@ -2499,5 +2503,235 @@
 
   .icon-picker-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ── Rich text editor (font controls) ── */
+.tx-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tx-count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.tx-wrap {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.tx-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  background: #f7f9f7;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.tx-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding-inline-end: 7px;
+  border-inline-end: 1px solid #e1e7e2;
+}
+
+.tx-group:last-child {
+  border-inline-end: 0;
+  padding-inline-end: 0;
+}
+
+.a-field .tx-toolbar select {
+  width: auto;
+  max-width: 132px;
+  padding: 5px 7px;
+  font-size: 0.76rem;
+  border-radius: 7px;
+  background: #fff;
+}
+
+.tx-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #31463a;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.tx-toolbar button:hover {
+  background: #e8efe9;
+  border-color: #d8e2da;
+}
+
+.tx-toolbar button.is-on {
+  background: var(--green-700);
+  color: #fff;
+}
+
+.tx-color {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid #d8e2da;
+  cursor: pointer;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+
+.tx-color input[type='color'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+
+.tx-editor {
+  min-height: 210px;
+  padding: 16px 18px;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.tx-editor:focus {
+  box-shadow: inset 0 0 0 2px rgba(27, 122, 69, 0.16);
+}
+
+.tx-editor h2 {
+  font-size: 1.45rem;
+  margin: 0.6em 0 0.35em;
+}
+
+.tx-editor h3 {
+  font-size: 1.18rem;
+  margin: 0.6em 0 0.3em;
+}
+
+.tx-editor h4 {
+  font-size: 1rem;
+  margin: 0.6em 0 0.3em;
+}
+
+.tx-editor p {
+  margin: 0 0 0.7em;
+}
+
+.tx-editor ul,
+.tx-editor ol {
+  padding-inline-start: 1.4em;
+  margin: 0 0 0.7em;
+}
+
+.tx-editor blockquote {
+  margin: 0 0 0.7em;
+  padding-inline-start: 14px;
+  border-inline-start: 3px solid var(--orange);
+  color: var(--muted);
+}
+
+.tx-editor a {
+  color: var(--green-700);
+  text-decoration: underline;
+}
+
+.tx-source {
+  width: 100%;
+  min-height: 240px;
+  border: 0;
+  padding: 14px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  background: #fbfcfb;
+}
+
+.tx-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 12px;
+  border-top: 1px solid var(--line);
+  background: #fbfcfb;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.type-preview {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px dashed #cfdad2;
+  border-radius: 12px;
+  background: #fbfcfb;
+  display: grid;
+  gap: 8px;
+}
+
+.type-preview b {
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.type-preview p {
+  margin: 0;
+  color: #41544a;
+  font-size: 0.95rem;
+}
+
+.type-preview small {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 640px) {
+  .tx-toolbar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .tx-group {
+    width: 100%;
+    flex-wrap: wrap;
+    padding: 0 0 6px;
+    border-inline-end: 0;
+  }
+
+  .a-field .tx-toolbar select {
+    flex: 1 1 96px;
+    max-width: none;
+  }
+
+  .tx-editor {
+    min-height: 180px;
+    padding: 14px;
   }
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import PageHero from '@/components/page-hero';
 import { getDict, isLocale, type Locale } from '@/lib/i18n';
+import { getSiteSettings } from '@/lib/site-settings.server';
 import { Check, Mail } from '@/components/icons';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -19,6 +20,7 @@ export default async function CareersPage({ params }: { params: Promise<{ locale
   if (!isLocale(raw)) notFound();
   const locale = raw;
   const t = getDict(locale);
+  const settings = await getSiteSettings();
 
   const steps =
     locale === 'ar'
@@ -57,7 +59,7 @@ export default async function CareersPage({ params }: { params: Promise<{ locale
             </p>
             <a
               className="btn btn-dark"
-              href="mailto:albadi@albadigroup.com?subject=CV%20-%20Al-Badi%20Group"
+              href={`mailto:${settings.email}?subject=${encodeURIComponent('CV - Al-Badi Group')}`}
             >
               <Mail size={16} /> {locale === 'ar' ? 'أرسل سيرتك الذاتية' : 'Send your CV'}
             </a>

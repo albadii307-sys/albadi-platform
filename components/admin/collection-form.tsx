@@ -3,6 +3,7 @@ import type { Collection } from '@/lib/collections';
 import { saveCollectionItem } from '@/app/admin/actions';
 import { ArrowLeft } from '@/components/icons';
 import ImageInput from './image-input';
+import RichEditor from './rich-editor';
 
 type Option = { id: string; label: string };
 
@@ -91,7 +92,20 @@ export default function CollectionForm({
                 );
               }
 
-              if (field.type === 'richtext' || field.type === 'textarea') {
+              if (field.type === 'richtext') {
+                return (
+                  <RichEditor
+                    key={field.name}
+                    name={field.name}
+                    label={field.label}
+                    defaultValue={value(field.name)}
+                    dir={field.name.endsWith('_en') ? 'ltr' : 'rtl'}
+                    full={field.full}
+                  />
+                );
+              }
+
+              if (field.type === 'textarea') {
                 return (
                   <div className={`a-field ${field.full ? 'full' : ''}`} key={field.name}>
                     <label htmlFor={field.name}>{field.label}</label>
@@ -100,12 +114,9 @@ export default function CollectionForm({
                       name={field.name}
                       defaultValue={value(field.name)}
                       required={field.required}
-                      rows={field.type === 'richtext' ? 9 : 3}
+                      rows={3}
                       dir="rtl"
                     />
-                    {field.type === 'richtext' ? (
-                      <span className="help">يدعم HTML: &lt;p&gt; &lt;ul&gt; &lt;li&gt; &lt;strong&gt; &lt;h3&gt;</span>
-                    ) : null}
                   </div>
                 );
               }

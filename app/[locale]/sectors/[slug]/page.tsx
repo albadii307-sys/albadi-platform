@@ -8,6 +8,7 @@ import { Counter } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Check, Phone, Pin } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { getCompanies, getProjects, getSector, getSectors, getServices } from '@/lib/queries';
+import { telHref } from '@/lib/site-settings';
 import { getSiteSettings } from '@/lib/site-settings.server';
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
@@ -56,6 +57,7 @@ export default async function SectorPage({ params }: Params) {
   const next = sectors[(index + 1) % sectors.length];
   const related = projects.filter((project) => project.sector_id === sector.id).slice(0, 6);
   const sectorCompanies = companies.filter((company) => company.sector_id === sector.id);
+  const companyNames = new Map(companies.map((company) => [company.id, pick(company, 'name', locale)]));
   const body = pick(sector, 'body', locale);
   const name = pick(sector, 'name', locale);
 
@@ -232,6 +234,9 @@ export default async function SectorPage({ params }: Params) {
                     name: pick(service, 'name', locale),
                     summary: pick(service, 'summary', locale),
                     requestable: service.is_requestable,
+                    body: pick(service, 'body', locale),
+                    image: service.image_url,
+                    company: service.company_id ? (companyNames.get(service.company_id) ?? '') : '',
                   }))}
                   locale={locale}
                   requestLabel={t.sectors.requestService}
@@ -281,8 +286,8 @@ export default async function SectorPage({ params }: Params) {
                 <Link href={`/${locale}/request?sector=${sector.id}`} className="x-btn x-btn-accent">
                   {t.nav.request} <Arrow size={16} />
                 </Link>
-                <a href="tel:+96826854411" className="x-side-tel" dir="ltr">
-                  <Phone size={15} /> +968 26 854 411
+                <a href={telHref(settings.phone)} className="x-side-tel" dir="ltr">
+                  <Phone size={15} /> {settings.phone}
                 </a>
               </div>
 

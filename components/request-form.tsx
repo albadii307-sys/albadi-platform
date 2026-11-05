@@ -70,7 +70,7 @@ export default function RequestForm({
   return (
     <form className="form-card" action={formAction} noValidate>
       <input type="hidden" name="locale" value={locale} />
-      <div aria-hidden="true" style={{ position: 'absolute', insetInlineStart: '-9999px' }}>
+      <div aria-hidden="true" className="form-honeypot">
         <label>
           Website
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />

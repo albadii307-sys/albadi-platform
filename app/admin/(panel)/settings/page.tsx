@@ -3,6 +3,7 @@ import { isSupabaseConfigured } from '@/lib/db';
 import { getSiteSettings } from '@/lib/site-settings.server';
 import { Award, Check, Clock, ImageIcon, Upload, X } from '@/components/icons';
 import { saveSiteContent } from '@/app/admin/actions';
+import { fontOptions } from '@/lib/site-settings';
 
 const socialFields = [
   { key: 'instagram', label: 'Instagram', hint: 'https://www.instagram.com/…' },
@@ -97,6 +98,108 @@ export default async function SettingsPage({
                 <input type="checkbox" name="reset_logo" />
                 استعادة الشعار الافتراضي عند الحفظ
               </label>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head">
+              <h2>الخطوط وتنسيق النص</h2>
+              <span className="row-sub">تُطبَّق على الموقع العام بالكامل — أما محتوى الصفحات فيُنسَّق من محرّر النص</span>
+            </div>
+            <div className="panel-body">
+              {(() => {
+                const typo = settings.typography;
+                const bodyFont = fontOptions.find((font) => font.key === typo.bodyFont) ?? fontOptions[0];
+                const headingFont = fontOptions.find((font) => font.key === typo.headingFont) ?? fontOptions[0];
+                return (
+                  <>
+                    <div className="a-grid-2">
+                      <div className="a-field">
+                        <label htmlFor="type_body_font">خط النصوص</label>
+                        <select id="type_body_font" name="type_body_font" defaultValue={typo.bodyFont}>
+                          {fontOptions.map((font) => (
+                            <option key={font.key} value={font.key}>
+                              {font.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="a-field">
+                        <label htmlFor="type_heading_font">خط العناوين</label>
+                        <select id="type_heading_font" name="type_heading_font" defaultValue={typo.headingFont}>
+                          {fontOptions.map((font) => (
+                            <option key={font.key} value={font.key}>
+                              {font.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="a-field">
+                        <label htmlFor="type_base_size">حجم النص الأساسي (px)</label>
+                        <input
+                          id="type_base_size"
+                          name="type_base_size"
+                          type="number"
+                          min={14}
+                          max={20}
+                          step={1}
+                          defaultValue={typo.baseSize}
+                        />
+                        <span className="a-help">14–20 بكسل — يكبّر أو يصغّر كل نصوص الموقع المبنية على وحدة rem.</span>
+                      </div>
+                      <div className="a-field">
+                        <label htmlFor="type_line_height">ارتفاع السطر</label>
+                        <select id="type_line_height" name="type_line_height" defaultValue={String(typo.lineHeight)}>
+                          {['1.3', '1.4', '1.5', '1.6', '1.7', '1.75', '1.8', '1.9', '2', '2.1', '2.2'].map((value) => (
+                            <option key={value} value={value}>
+                              {value}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="a-field">
+                        <label htmlFor="type_letter_spacing">تباعد الحروف (px)</label>
+                        <input
+                          id="type_letter_spacing"
+                          name="type_letter_spacing"
+                          type="number"
+                          min={-1}
+                          max={3}
+                          step={0.5}
+                          defaultValue={typo.letterSpacing}
+                        />
+                        <span className="a-help">القيمة السالبة تضغط الحروف، والموجبة توسّعها.</span>
+                      </div>
+                      <div className="a-field">
+                        <label htmlFor="type_heading_weight">سماكة العناوين</label>
+                        <select id="type_heading_weight" name="type_heading_weight" defaultValue={String(typo.headingWeight)}>
+                          {[400, 500, 600, 700, 800].map((weight) => (
+                            <option key={weight} value={weight}>
+                              {weight}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="type-preview">
+                      <span className="row-sub">معاينة الخط الحالي</span>
+                      <b style={{ fontFamily: headingFont.stack, fontWeight: typo.headingWeight }}>
+                        نبني عُمان منذ 1976
+                      </b>
+                      <p style={{ fontFamily: bodyFont.stack, lineHeight: typo.lineHeight, letterSpacing: typo.letterSpacing }}>
+                        مجموعة عُمانية متعددة الأنشطة، تعمل في المقاولات والصناعة والتجارة والتعليم والضيافة بقيادة كوادر
+                        عُمانية.
+                      </p>
+                      <small style={{ fontFamily: bodyFont.stack }}>Al-Badi Investment Holding Group — since 1976</small>
+                    </div>
+                    <p className="a-help">
+                      لتغيير خط أو حجم أو لون جزء محدد داخل المحتوى، افتح أي عنصر فيه محرّر نص واحفظ التغييرات من الشريط
+                      المنسدل.
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           </div>
 

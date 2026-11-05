@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next';
 import { getAllNews, getAllProjects, getSectors } from '@/lib/queries';
 import { locales } from '@/lib/i18n';
 
+export const dynamic = 'force-dynamic';
+
 const staticPaths = [
   '',
   '/about',

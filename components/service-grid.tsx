@@ -8,6 +8,9 @@ export type ServiceItem = {
   name: string;
   summary: string;
   requestable: boolean;
+  body?: string;
+  image?: string | null;
+  company?: string;
 };
 
 export default function ServiceGrid({
@@ -35,6 +38,20 @@ export default function ServiceGrid({
           <span className="x-svc-n">{String(index + 1).padStart(2, '0')}</span>
           <h3>{item.name}</h3>
           <p>{item.summary}</p>
+          {item.body || item.image || item.company ? (
+            <details className="x-svc-more">
+              <summary>{locale === 'ar' ? 'تفاصيل الخدمة' : 'Service details'}</summary>
+              <div className="x-svc-body">
+                {item.image ? <img className="x-svc-img" src={item.image} alt={item.name} loading="lazy" /> : null}
+                {item.company ? (
+                  <p className="x-svc-company">
+                    <b>{locale === 'ar' ? 'الشركة المنفذة' : 'Delivered by'}:</b> {item.company}
+                  </p>
+                ) : null}
+                {item.body ? <div dangerouslySetInnerHTML={{ __html: item.body }} /> : null}
+              </div>
+            </details>
+          ) : null}
           {item.requestable ? (
             <Link href={`/${locale}/request?service=${item.id}`} className="x-svc-cta">
               {requestLabel}
