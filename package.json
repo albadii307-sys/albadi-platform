@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "resize": "node scripts/resize.mjs"
+    "resize": "node scripts/resize.mjs",
+    "seed:supabase": "node scripts/seed-supabase.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",

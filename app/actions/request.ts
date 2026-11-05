@@ -1,10 +1,9 @@
 'use server';
 
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
 import { revalidatePath } from 'next/cache';
 import { insert, count } from '@/lib/db';
 import { getOne } from '@/lib/db';
+import { saveUpload } from '@/lib/uploads';
 import type { Service, ServiceRequest } from '@/lib/types';
 
 export type RequestState = {
@@ -67,13 +66,9 @@ export async function submitServiceRequest(
     if (!ALLOWED.has(file.type) || file.size > MAX_FILE) {
       errors.attachment = msg.file;
     } else {
-      const ext = file.name.split('.').pop()?.toLowerCase() ?? 'bin';
-      const fileName = `${crypto.randomUUID()}.${ext}`;
-      const dir = path.join(process.cwd(), 'public', 'uploads', 'requests');
       try {
-        await fs.mkdir(dir, { recursive: true });
-        await fs.writeFile(path.join(dir, fileName), Buffer.from(await file.arrayBuffer()));
-        attachmentUrl = `/uploads/requests/${fileName}`;
+        attachmentUrl = await saveUpload(file, 'requests', MAX_FILE);
+        if (!attachmentUrl) errors.attachment = msg.file;
       } catch {
         return { status: 'error', message: msg.unavailable };
       }

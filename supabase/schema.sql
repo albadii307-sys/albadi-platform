@@ -19,7 +19,7 @@ $$;
 
 -- ── القطاعات ───────────────────────────────────────────────────────────
 create table if not exists public.sectors (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   slug text not null unique,
   name_ar text not null,
   name_en text not null default '',
@@ -38,8 +38,8 @@ create table if not exists public.sectors (
 
 -- ── الشركات التابعة ────────────────────────────────────────────────────
 create table if not exists public.companies (
-  id uuid primary key default gen_random_uuid(),
-  sector_id uuid references public.sectors(id) on delete set null,
+  id text primary key default gen_random_uuid()::text,
+  sector_id text references public.sectors(id) on delete set null,
   slug text not null unique,
   name_ar text not null,
   name_en text not null default '',
@@ -55,9 +55,9 @@ create table if not exists public.companies (
 
 -- ── الخدمات (القابلة للطلب من الموقع) ──────────────────────────────────
 create table if not exists public.services (
-  id uuid primary key default gen_random_uuid(),
-  sector_id uuid references public.sectors(id) on delete set null,
-  company_id uuid references public.companies(id) on delete set null,
+  id text primary key default gen_random_uuid()::text,
+  sector_id text references public.sectors(id) on delete set null,
+  company_id text references public.companies(id) on delete set null,
   slug text not null unique,
   name_ar text not null,
   name_en text not null default '',
@@ -75,13 +75,13 @@ create table if not exists public.services (
 
 -- ── المشاريع ───────────────────────────────────────────────────────────
 create table if not exists public.projects (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   slug text not null unique,
   title_ar text not null,
   title_en text not null default '',
   client_ar text,
   client_en text,
-  sector_id uuid references public.sectors(id) on delete set null,
+  sector_id text references public.sectors(id) on delete set null,
   location_ar text,
   location_en text,
   year integer,
@@ -97,7 +97,7 @@ create table if not exists public.projects (
 
 -- ── الأخبار والتغطيات ──────────────────────────────────────────────────
 create table if not exists public.news (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   slug text not null unique,
   title_ar text not null,
   title_en text not null default '',
@@ -116,7 +116,7 @@ create table if not exists public.news (
 
 -- ── الصفحات الثابتة (من نحن، الرؤية...) ────────────────────────────────
 create table if not exists public.pages (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   key text not null unique,
   title_ar text not null,
   title_en text not null default '',
@@ -128,10 +128,10 @@ create table if not exists public.pages (
 
 -- ── طلبات الخدمات والرسائل ─────────────────────────────────────────────
 create table if not exists public.requests (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   ref text not null unique,
-  service_id uuid references public.services(id) on delete set null,
-  sector_id uuid references public.sectors(id) on delete set null,
+  service_id text references public.services(id) on delete set null,
+  sector_id text references public.sectors(id) on delete set null,
   service_name text,
   name text not null,
   company text,
@@ -149,7 +149,7 @@ create table if not exists public.requests (
 
 -- ── مكتبة الوسائط / الكتيبات ───────────────────────────────────────────
 create table if not exists public.media (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   title text not null,
   url text not null,
   kind text not null default 'image' check (kind in ('image', 'pdf')),
@@ -169,7 +169,7 @@ create table if not exists public.profiles (
 
 -- ── فريق العمل والقيادة ────────────────────────────────────────────────
 create table if not exists public.team (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   name_ar text not null,
   name_en text not null default '',
   role_ar text not null,
@@ -185,7 +185,7 @@ create table if not exists public.team (
 
 -- ── إعدادات الموقع (الشعار وغيره) ──────────────────────────────────────
 create table if not exists public.settings (
-  id uuid primary key default gen_random_uuid(),
+  id text primary key default gen_random_uuid()::text,
   key text not null unique,
   value text not null default '',
   created_at timestamptz not null default now(),
@@ -413,8 +413,9 @@ create policy "media staff delete" on storage.objects
 
 -- ═══════════════════════════════════════════════════════════════════════
 --  الخطوة التالية (يدوياً):
---  1) Authentication → Users → Add user (بريد الشركة + كلمة مرور).
---  2) نفّذ: update public.profiles set role = 'admin' where email = 'YOUR_EMAIL';
---  3) انسخ URL و anon key و service_role key إلى .env.local وأعد التشغيل.
---  4) نقل المحتوى: npm run seed:supabase (اختياري — راجع README).
+--  1) انسخ URL و anon key و service_role key إلى .env.local.
+--  2) انقل المحتوى الحالي: npm run seed:supabase
+--  3) Authentication → Users → Add user (بريد الشركة + كلمة مرور).
+--  4) نفّذ: update public.profiles set role = 'admin' where email = 'YOUR_EMAIL';
+--  5) أضف نفس المتغيرات في Vercel ثم أعد النشر.
 -- ═══════════════════════════════════════════════════════════════════════

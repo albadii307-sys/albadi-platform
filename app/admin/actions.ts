@@ -1,12 +1,11 @@
 'use server';
 
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getOne, insert, remove, update } from '@/lib/db';
 import { collections } from '@/lib/collections';
 import { login, logout, requireSession } from '@/lib/auth';
+import { saveUpload } from '@/lib/uploads';
 import type { Setting } from '@/lib/types';
 
 export type LoginState = { error?: string };
@@ -17,17 +16,6 @@ function slugify(value: string) {
     .replace(/[^\p{L}\p{N}]+/gu, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 70);
-}
-
-async function saveUpload(file: File, folder: string) {
-  const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml', 'application/pdf'];
-  if (!allowed.includes(file.type) || file.size > 8 * 1024 * 1024) return null;
-  const ext = file.name.split('.').pop()?.toLowerCase() ?? 'bin';
-  const name = `${crypto.randomUUID()}.${ext}`;
-  const dir = path.join(process.cwd(), 'public', 'uploads', folder);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
-  return `/uploads/${folder}/${name}`;
 }
 
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
