@@ -2,17 +2,20 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import {
   Building,
   Inbox,
   Layers,
   Layout,
   LogOut,
+  Menu,
   ImageIcon,
   Settings,
   Users,
   FileText,
   ArrowUpRight,
+  X,
 } from '@/components/icons';
 import { logoutAction } from '@/app/admin/actions';
 
@@ -27,53 +30,86 @@ const items = [
   { href: '/admin/collections/news', label: 'الأخبار', icon: Users },
   { href: '/admin/collections/pages', label: 'الصفحات', icon: FileText },
   { href: '/admin/media', label: 'الوسائط', icon: ImageIcon },
-  { href: '/admin/settings', label: 'إعدادات الشركة', icon: Settings },
+  { href: '/admin/settings', label: 'إعدادات الموقع', icon: Settings },
 ];
 
 export default function AdminSidebar({ email, role, logo }: { email: string; role: string; logo: string }) {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
   const roleLabel = role === 'admin' ? 'مدير النظام' : role === 'editor' ? 'محرر' : 'مسؤول طلبات';
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [open]);
+
   return (
-    <aside className="admin-side">
-      <Link href="/admin" className="admin-brand">
-        <img src={logo} alt="مجموعة البادي" />
-        <span>
-          لوحة التحكم
-          <br />
-          Al-Badi Admin
-        </span>
-      </Link>
+    <>
+      <button
+        type="button"
+        className={`admin-menu-btn${open ? ' is-hidden' : ''}`}
+        onClick={() => setOpen(true)}
+        aria-label="فتح القائمة"
+        aria-expanded={open}
+        aria-controls="admin-side"
+      >
+        <Menu size={18} />
+        <span>القائمة</span>
+      </button>
 
-      <span className="admin-label">إدارة الموقع</span>
-      <nav className="admin-nav">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href)) ? 'page' : undefined}
-          >
-            <item.icon size={17} /> {item.label}
-          </Link>
-        ))}
-      </nav>
+      <div className={`admin-scrim${open ? ' is-on' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
 
-      <div className="admin-user">
-        <b>{email}</b>
-        <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{roleLabel}</span>
-        <form action={logoutAction}>
-          <button type="submit">
-            <LogOut size={13} /> تسجيل الخروج
-          </button>
-        </form>
-        <Link
-          href="/ar"
-          target="_blank"
-          style={{ display: 'inline-flex', gap: 5, alignItems: 'center', marginTop: 12, fontSize: '0.74rem', opacity: 0.7 }}
-        >
-          عرض الموقع <ArrowUpRight size={12} />
+      <aside id="admin-side" className={`admin-side${open ? ' is-open' : ''}`}>
+        <button type="button" className="admin-side-close" onClick={() => setOpen(false)} aria-label="إغلاق القائمة">
+          <X size={18} />
+        </button>
+
+        <Link href="/admin" className="admin-brand">
+          <img src={logo} alt="مجموعة البادي" />
+          <span>
+            لوحة التحكم
+            <br />
+            Al-Badi Admin
+          </span>
         </Link>
-      </div>
-    </aside>
+
+        <span className="admin-label">إدارة الموقع</span>
+        <nav className="admin-nav">
+          {items.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              aria-current={pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href)) ? 'page' : undefined}
+            >
+              <item.icon size={17} /> {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="admin-user">
+          <b>{email}</b>
+          <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{roleLabel}</span>
+          <form action={logoutAction}>
+            <button type="submit">
+              <LogOut size={13} /> تسجيل الخروج
+            </button>
+          </form>
+          <Link
+            href="/ar"
+            target="_blank"
+            style={{ display: 'inline-flex', gap: 5, alignItems: 'center', marginTop: 12, fontSize: '0.74rem', opacity: 0.7 }}
+          >
+            عرض الموقع <ArrowUpRight size={12} />
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 }

@@ -1,9 +1,19 @@
 import Link from 'next/link';
 import type { Locale, Sector } from '@/lib/types';
 import { getDict, pick } from '@/lib/i18n';
+import { siteAddress, siteName, telHref, type SiteSettings } from '@/lib/site-settings';
+import SocialLinks from './social-links';
 import { Mail, Phone, Pin, ArrowUpRight } from './icons';
 
-export default function SiteFooter({ locale, sectors, logo }: { locale: Locale; sectors: Sector[]; logo: string }) {
+export default function SiteFooter({
+  locale,
+  sectors,
+  settings,
+}: {
+  locale: Locale;
+  sectors: Sector[];
+  settings: SiteSettings;
+}) {
   const t = getDict(locale);
   const base = `/${locale}`;
   const year = new Date().getFullYear();
@@ -21,9 +31,10 @@ export default function SiteFooter({ locale, sectors, logo }: { locale: Locale; 
         <div className="footer-grid">
           <div>
             <Link href={base} className="brand">
-              <img src={logo} alt={t.siteName} width={375} height={63} />
+              <img src={settings.logo} alt={siteName(locale, settings)} width={375} height={63} />
             </Link>
             <p style={{ marginTop: 18, maxWidth: '38ch', lineHeight: 1.8 }}>{t.footer.about}</p>
+            <SocialLinks settings={settings} tone="dark" label={locale === 'ar' ? 'حسابات التواصل الاجتماعي' : 'Social media'} />
           </div>
 
           <div>
@@ -56,18 +67,18 @@ export default function SiteFooter({ locale, sectors, logo }: { locale: Locale; 
               <li>
                 <Phone size={16} />
                 <span dir="ltr">
-                  <a href="tel:+96826854411">+968 26 854 411</a>
+                  <a href={telHref(settings.phone)}>{settings.phone}</a>
                   <br />
-                  <a href="tel:+96826855744">+968 26 855 744</a>
+                  <a href={telHref(settings.fax)}>{settings.fax}</a>
                 </span>
               </li>
               <li>
                 <Mail size={16} />
-                <a href="mailto:albadi@albadigroup.com">albadi@albadigroup.com</a>
+                <a href={`mailto:${settings.email}`}>{settings.email}</a>
               </li>
               <li>
                 <Pin size={16} />
-                <span>{t.contact.addressValue}</span>
+                <span>{siteAddress(locale, settings)}</span>
               </li>
             </ul>
           </div>

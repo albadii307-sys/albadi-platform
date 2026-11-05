@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import ServiceGrid from '@/components/service-grid';
 import SectorCompanies from '@/components/sector-companies';
 import { Counter } from '@/components/x-motion';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Phone, Pin } from '@/components/icons';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Check, Phone, Pin } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { getCompanies, getProjects, getSector, getSectors, getServices } from '@/lib/queries';
 
@@ -121,9 +121,80 @@ export default async function SectorPage({ params }: Params) {
         </div>
       </section>
 
+      <section className="x-secstats" aria-label={ar ? 'أرقام القطاع' : 'Sector at a glance'}>
+        <div className="container x-secstats-grid">
+          <div>
+            <b>
+              <Counter value={new Date().getFullYear() - 1976} />
+            </b>
+            <small>{ar ? 'عاماً من الخبرة' : 'Years of experience'}</small>
+          </div>
+          <div>
+            <b>
+              <Counter value={services.length} />
+            </b>
+            <small>{ar ? 'خدمة متاحة' : 'Services'}</small>
+          </div>
+          <div>
+            <b>
+              <Counter value={sectorCompanies.length} />
+            </b>
+            <small>{ar ? 'شركة تابعة' : 'Companies'}</small>
+          </div>
+          <div>
+            <b>
+              <Counter value={related.length} />
+            </b>
+            <small>{ar ? 'مشروع منفذ' : 'Projects'}</small>
+          </div>
+        </div>
+      </section>
+
       <section className="x-sector">
         <div className="container x-sector-grid">
           <div className="x-sector-main">
+            <div className="x-sector-intro">
+              <div className="x-sector-intro-media reveal">
+                <img
+                  src={related[0]?.cover_url ?? sector.hero_url ?? '/media/projects/p4.webp'}
+                  alt={name}
+                  loading="lazy"
+                  data-parallax="0.035"
+                />
+                <span className="x-sector-intro-tag">
+                  {ar ? `القطاع ${String(index + 1).padStart(2, '0')}` : `Sector ${String(index + 1).padStart(2, '0')}`}
+                </span>
+              </div>
+
+              <div className="x-sector-intro-copy reveal">
+                <span className="x-eyebrow">
+                  <i aria-hidden="true" />
+                  {ar ? 'نبذة عن القطاع' : 'Sector overview'}
+                </span>
+                <h2 className="x-h2">
+                  {ar ? 'خبرة نضعها في' : 'Experience built for'}
+                  <br />
+                  <em>{ar ? 'خدمة مشروعك.' : 'your next project.'}</em>
+                </h2>
+                <p>{pick(sector, 'summary', locale)}</p>
+
+                {services.length ? (
+                  <ul className="x-cred">
+                    {services.slice(0, 4).map((service) => (
+                      <li key={service.id}>
+                        <Check size={16} />
+                        {pick(service, 'name', locale)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+
+                <Link href={`/${locale}/request?sector=${sector.id}`} className="x-link">
+                  {t.nav.request} <Arrow size={16} />
+                </Link>
+              </div>
+            </div>
+
             {body ? <article className="x-prose reveal" dangerouslySetInnerHTML={{ __html: body }} /> : null}
 
             {services.length ? (

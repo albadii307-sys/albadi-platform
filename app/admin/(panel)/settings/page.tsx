@@ -1,7 +1,42 @@
 import { isSupabaseConfigured } from '@/lib/db';
-import { getSiteLogo } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/site-settings.server';
 import { Check, Upload, X } from '@/components/icons';
-import { saveCompanySettings } from '@/app/admin/actions';
+import Repeater from '@/components/admin/repeater';
+import { saveSiteContent } from '@/app/admin/actions';
+
+const whyIcons = [
+  { value: 'award', label: 'خبرة / وسام' },
+  { value: 'layers', label: 'تنوّع / طبقات' },
+  { value: 'users', label: 'كوادر / أشخاص' },
+  { value: 'shield', label: 'جودة / درع' },
+  { value: 'leaf', label: 'استدامة / ورقة' },
+  { value: 'compass', label: 'رؤية / بوصلة' },
+];
+
+const whyFields = [
+  { name: 'icon', label: 'الأيقونة', type: 'select' as const, options: whyIcons },
+  { name: 'title_ar', label: 'العنوان (عربي)' },
+  { name: 'title_en', label: 'العنوان (إنجليزي)' },
+  { name: 'text_ar', label: 'الوصف (عربي)', wide: true },
+  { name: 'text_en', label: 'الوصف (إنجليزي)', wide: true },
+];
+
+const timelineFields = [
+  { name: 'year', label: 'السنة' },
+  { name: 'title_ar', label: 'العنوان (عربي)' },
+  { name: 'title_en', label: 'العنوان (إنجليزي)' },
+  { name: 'text_ar', label: 'الوصف (عربي)', wide: true },
+  { name: 'text_en', label: 'الوصف (إنجليزي)', wide: true },
+];
+
+const socialFields = [
+  { key: 'instagram', label: 'Instagram', hint: 'https://www.instagram.com/…' },
+  { key: 'x', label: 'X (Twitter)', hint: 'https://x.com/…' },
+  { key: 'linkedin', label: 'LinkedIn', hint: 'https://www.linkedin.com/company/…' },
+  { key: 'facebook', label: 'Facebook', hint: 'https://www.facebook.com/…' },
+  { key: 'youtube', label: 'YouTube', hint: 'https://www.youtube.com/@…' },
+  { key: 'whatsapp', label: 'WhatsApp', hint: '+968 …' },
+] as const;
 
 export default async function SettingsPage({
   searchParams,
@@ -9,7 +44,7 @@ export default async function SettingsPage({
   searchParams: Promise<{ saved?: string }>;
 }) {
   const { saved } = await searchParams;
-  const logo = await getSiteLogo();
+  const settings = await getSiteSettings();
 
   const rows = [
     { label: 'قاعدة البيانات', ok: isSupabaseConfigured, on: 'Supabase متصل', off: 'وضع المعاينة المحلي (.data/db.json)' },
@@ -31,57 +66,154 @@ export default async function SettingsPage({
   return (
     <>
       <div className="admin-topbar">
-        <h1>إعدادات الشركة</h1>
-        <span className="crumb">الهوية وحالة النظام والتكاملات</span>
+        <h1>إعدادات الموقع</h1>
+        <span className="crumb">الهوية وبيانات التواصل والتواصل الاجتماعي ومحتوى الصفحات</span>
       </div>
       <div className="admin-content">
-        {saved ? <div className="alert-admin">تم حفظ شعار الشركة، وسيظهر في ترويسة الموقع وتذييله بعد التحديث.</div> : null}
+        {saved ? <div className="alert-admin">تم حفظ الإعدادات وتحديث الموقع. افتح الموقع للتأكد من الترويسة والتذييل.</div> : null}
 
-        <div className="panel">
-          <div className="panel-head">
-            <h2>شعار الشركة</h2>
-            <span className="row-sub">يظهر في الترويسة والتذييل وقائمة الجوال</span>
-          </div>
-          <div className="panel-body">
-            <div className="brand-setting">
-              <div className="brand-setting-preview">
-                <span className="row-sub">الشعار الحالي</span>
-                <div className="brand-setting-tile">
-                  <img src={logo} alt="شعار الشركة الحالي" />
+        <form action={saveSiteContent} className="a-form settings-form">
+          <div className="panel">
+            <div className="panel-head">
+              <h2>هوية الشركة</h2>
+              <span className="row-sub">الاسم والشعار يظهران في الترويسة والتذييل وقائمة الجوال</span>
+            </div>
+            <div className="panel-body">
+              <div className="brand-setting">
+                <div className="brand-setting-preview">
+                  <span className="row-sub">الشعار الحالي</span>
+                  <div className="brand-setting-tile">
+                    <img src={settings.logo} alt="شعار الشركة الحالي" />
+                  </div>
+                  <span className="row-sub" dir="ltr">
+                    {settings.logo}
+                  </span>
                 </div>
-                <span className="row-sub" dir="ltr">
-                  {logo}
-                </span>
+                <div className="a-grid-2">
+                  <div className="a-field">
+                    <label htmlFor="brand_name_ar">اسم الشركة (عربي)</label>
+                    <input id="brand_name_ar" name="brand_name_ar" defaultValue={settings.brandNameAr} />
+                  </div>
+                  <div className="a-field">
+                    <label htmlFor="brand_name_en">اسم الشركة (إنجليزي)</label>
+                    <input id="brand_name_en" name="brand_name_en" defaultValue={settings.brandNameEn} dir="ltr" />
+                  </div>
+                  <div className="a-field">
+                    <label htmlFor="brand_tagline_ar">الوصف القصير (عربي)</label>
+                    <input id="brand_tagline_ar" name="brand_tagline_ar" defaultValue={settings.taglineAr} />
+                  </div>
+                  <div className="a-field">
+                    <label htmlFor="brand_tagline_en">الوصف القصير (إنجليزي)</label>
+                    <input id="brand_tagline_en" name="brand_tagline_en" defaultValue={settings.taglineEn} dir="ltr" />
+                  </div>
+                  <div className="a-field">
+                    <label htmlFor="logo_url">رابط الشعار</label>
+                    <input id="logo_url" name="logo_url" defaultValue={settings.logo} dir="ltr" placeholder="/media/brand/logo.png" />
+                    <span className="a-help">مسار داخلي أو رابط صورة مباشر (PNG أو SVG بخلفية شفافة).</span>
+                  </div>
+                  <div className="a-field">
+                    <label htmlFor="logo_file">أو ارفع شعاراً جديداً</label>
+                    <input id="logo_file" name="logo_file" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg" />
+                    <span className="a-help">PNG أو SVG أو WebP — بحد أقصى 8 ميجابايت. يُستبدل الرابط تلقائياً بعد الرفع.</span>
+                  </div>
+                </div>
               </div>
-
-              <form action={saveCompanySettings} className="a-form brand-setting-form">
-                <div className="a-field">
-                  <label htmlFor="logo_url">رابط الشعار</label>
-                  <input
-                    id="logo_url"
-                    name="logo_url"
-                    defaultValue={logo}
-                    dir="ltr"
-                    placeholder="/media/brand/logo.png"
-                  />
-                  <span className="a-help">مسار داخلي أو رابط صورة مباشر (PNG أو SVG بخلفية شفافة).</span>
-                </div>
-                <div className="a-field">
-                  <label htmlFor="logo_file">أو ارفع شعاراً جديداً</label>
-                  <input id="logo_file" name="logo_file" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg" />
-                  <span className="a-help">PNG أو SVG أو WebP — بحد أقصى 8 ميجابايت. يُستبدل الرابط تلقائياً بعد الرفع.</span>
-                </div>
-                <label className="brand-reset">
-                  <input type="checkbox" name="reset_logo" />
-                  استعادة الشعار الافتراضي عند الحفظ
-                </label>
-                <button type="submit" className="a-btn primary" style={{ justifySelf: 'start' }}>
-                  <Upload size={15} /> حفظ الشعار
-                </button>
-              </form>
+              <label className="brand-reset">
+                <input type="checkbox" name="reset_logo" />
+                استعادة الشعار الافتراضي عند الحفظ
+              </label>
             </div>
           </div>
-        </div>
+
+          <div className="panel">
+            <div className="panel-head">
+              <h2>بيانات التواصل</h2>
+              <span className="row-sub">تظهر في التذييل وصفحة التواصل وترويسة الجوال</span>
+            </div>
+            <div className="panel-body">
+              <div className="a-grid-2">
+                <div className="a-field">
+                  <label htmlFor="contact_phone">الهاتف</label>
+                  <input id="contact_phone" name="contact_phone" defaultValue={settings.phone} dir="ltr" />
+                </div>
+                <div className="a-field">
+                  <label htmlFor="contact_fax">الفاكس</label>
+                  <input id="contact_fax" name="contact_fax" defaultValue={settings.fax} dir="ltr" />
+                </div>
+                <div className="a-field">
+                  <label htmlFor="contact_email">البريد الإلكتروني</label>
+                  <input id="contact_email" name="contact_email" defaultValue={settings.email} dir="ltr" />
+                </div>
+                <div className="a-field">
+                  <label htmlFor="contact_address_ar">العنوان (عربي)</label>
+                  <input id="contact_address_ar" name="contact_address_ar" defaultValue={settings.addressAr} />
+                </div>
+                <div className="a-field">
+                  <label htmlFor="contact_address_en">العنوان (إنجليزي)</label>
+                  <input id="contact_address_en" name="contact_address_en" defaultValue={settings.addressEn} dir="ltr" />
+                </div>
+                <div className="a-field">
+                  <label htmlFor="contact_hours_ar">ساعات العمل (عربي)</label>
+                  <input id="contact_hours_ar" name="contact_hours_ar" defaultValue={settings.hoursAr} />
+                </div>
+                <div className="a-field">
+                  <label htmlFor="contact_hours_en">ساعات العمل (إنجليزي)</label>
+                  <input id="contact_hours_en" name="contact_hours_en" defaultValue={settings.hoursEn} dir="ltr" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head">
+              <h2>التواصل الاجتماعي</h2>
+              <span className="row-sub">أضف الرابط ليظهر الأيقونة في الموقع — الحقل الفارغ يُخفي الأيقونة.</span>
+            </div>
+            <div className="panel-body">
+              <div className="a-grid-2">
+                {socialFields.map((social) => (
+                  <div className="a-field" key={social.key}>
+                    <label htmlFor={`social_${social.key}`}>{social.label}</label>
+                    <input
+                      id={`social_${social.key}`}
+                      name={`social_${social.key}`}
+                      defaultValue={settings.social[social.key]}
+                      dir="ltr"
+                      placeholder={social.hint}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head">
+              <h2>لماذا مجموعة البادي</h2>
+              <span className="row-sub">البطاقات التي تظهر في الصفحة الرئيسية وصفحة عن المجموعة</span>
+            </div>
+            <div className="panel-body">
+              <Repeater name="why_json" initial={settings.why} fields={whyFields} addLabel="إضافة بطاقة" />
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head">
+              <h2>محطات من مسيرتنا</h2>
+              <span className="row-sub">المحطات الزمنية التي تظهر في صفحة عن المجموعة</span>
+            </div>
+            <div className="panel-body">
+              <Repeater name="timeline_json" initial={settings.timeline} fields={timelineFields} addLabel="إضافة محطة" />
+            </div>
+          </div>
+
+          <div className="a-savebar">
+            <span className="row-sub">تُطبّق التغييرات على الموقع بمجرد الحفظ.</span>
+            <button type="submit" className="a-btn primary">
+              <Upload size={15} /> حفظ كل الإعدادات
+            </button>
+          </div>
+        </form>
 
         <div className="panel">
           <div className="panel-head">
@@ -104,32 +236,6 @@ export default async function SettingsPage({
               ))}
             </tbody>
           </table>
-        </div>
-
-        <div className="panel">
-          <div className="panel-head">
-            <h2>ربط Supabase</h2>
-          </div>
-          <div className="panel-body" style={{ fontSize: '0.86rem', lineHeight: 1.9 }}>
-            <p>لتفعيل قاعدة البيانات السحابية:</p>
-            <ol style={{ paddingInlineStart: 20, margin: '8px 0 16px' }}>
-              <li>أنشئ مشروعاً على supabase.com</li>
-              <li>نفّذ ملف <code dir="ltr">supabase/schema.sql</code> في SQL Editor</li>
-              <li>
-                أضف المفاتيح في <code dir="ltr">.env.local</code>:
-                <pre
-                  dir="ltr"
-                  style={{ background: '#0a3222', color: '#d7f5e3', padding: 14, borderRadius: 10, overflowX: 'auto', fontSize: '0.78rem', marginTop: 8 }}
-                >{`NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...`}</pre>
-              </li>
-              <li>أنشئ مستخدم المدير من Authentication ثم أضف دوره في جدول profiles</li>
-            </ol>
-            <p style={{ color: 'var(--muted)' }}>
-              الأدوار: <b>مدير</b> (كل الصلاحيات) · <b>محرر</b> (المحتوى) · <b>مسؤول طلبات</b> (الطلبات فقط).
-            </p>
-          </div>
         </div>
 
         <div className="panel">

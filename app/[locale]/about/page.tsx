@@ -2,11 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import CompanyGrid from '@/components/company-grid';
+import WhySection from '@/components/why-section';
+import Timeline from '@/components/timeline';
 import { Counter } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, Check } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { companiesCount } from '@/lib/plural';
 import { getCompanies, getPage, getSectors } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/site-settings.server';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -27,7 +30,12 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const t = getDict(locale);
   const Arrow = ar ? ArrowLeft : ArrowRight;
 
-  const [page, companies, sectors] = await Promise.all([getPage('about'), getCompanies(), getSectors()]);
+  const [page, companies, sectors, settings] = await Promise.all([
+    getPage('about'),
+    getCompanies(),
+    getSectors(),
+    getSiteSettings(),
+  ]);
 
   const items = companies.map((company) => {
     const sector = sectors.find((item) => item.id === company.sector_id);
@@ -70,6 +78,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           <div className="x-cat-foot">
             <p>{t.home.aboutText}</p>
             <div className="x-cat-stats">
+              <div>
+                <b>1976</b>
+                <small>{ar ? 'سنة التأسيس' : 'Founded'}</small>
+              </div>
               <div>
                 <b>
                   <Counter value={sectors.length} />
@@ -143,6 +155,32 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
           </div>
         </div>
       </section>
+
+      <WhySection
+        items={settings.why}
+        locale={locale}
+        eyebrow={ar ? 'لماذا مجموعة البادي' : 'Why Al-Badi'}
+        title={ar ? 'قيم راسخة' : 'Values that hold'}
+        accent={ar ? 'منذ 1976.' : 'since 1976.'}
+        lead={
+          ar
+            ? 'ليست مجرد شعارات، بل طريقة عمل ورثناها جيلاً بعد جيل: الوفاء بالوعد، والجودة قبل السرعة، والإنسان قبل المشروع.'
+            : 'Not slogans, but a way of working passed down through generations: keep your word, choose quality over speed, and put people before projects.'
+        }
+      />
+
+      <Timeline
+        items={settings.timeline}
+        locale={locale}
+        eyebrow={ar ? 'محطات من مسيرتنا' : 'Milestones'}
+        title={ar ? 'خمسون عاماً من' : 'Five decades of'}
+        accent={ar ? 'البناء والنمو.' : 'building and growth.'}
+        lead={
+          ar
+            ? 'من أول سجل تجاري في صحم عام 1976 إلى قطاعات متكاملة تخدم عُمان اليوم — هذه أبرز محطات رحلتنا.'
+            : 'From the first commercial registration in Saham in 1976 to integrated sectors serving Oman today — these are the milestones of our journey.'
+        }
+      />
 
       <section className="x-companies x-companies-page">
         <div className="container">

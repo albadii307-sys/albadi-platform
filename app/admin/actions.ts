@@ -6,6 +6,7 @@ import { getOne, insert, remove, update } from '@/lib/db';
 import { collections } from '@/lib/collections';
 import { login, logout, requireSession } from '@/lib/auth';
 import { saveUpload } from '@/lib/uploads';
+import { defaultTimeline, defaultWhy } from '@/lib/site-settings';
 import type { Setting } from '@/lib/types';
 
 export type LoginState = { error?: string };
@@ -120,28 +121,82 @@ export async function uploadMedia(formData: FormData) {
   revalidatePath('/media');
 }
 
-export async function saveCompanySettings(formData: FormData) {
-  await requireSession();
-
-  const reset = formData.get('reset_logo') === 'on';
-  const url = String(formData.get('logo_url') ?? '').trim();
-  const file = formData.get('logo_file');
-
-  let value = '/media/brand/logo.png';
-  if (!reset) {
-    value = url || '/media/brand/logo.png';
-    if (file instanceof File && file.size > 0) {
-      const uploaded = await saveUpload(file, 'brand');
-      if (uploaded) value = uploaded;
-    }
-  }
-
-  const existing = await getOne<Setting>('settings', { key: 'logo_url' });
+async function setSetting(key: string, value: string) {
+  const existing = await getOne<Setting>('settings', { key });
   if (existing) {
     await update('settings', existing.id, { value });
   } else {
-    await insert('settings', { key: 'logo_url', value });
+    await insert('settings', { key, value });
   }
+}
+
+function cleanRows(raw: unknown, fallback: Record<string, string>[]): Record<string, string>[] {
+  if (!Array.isArray(raw)) return fallback;
+  const rows = raw
+    .filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === 'object')
+    .map((row) =>
+      Object.fromEntries(
+        Object.entries(row)
+          .filter(([, value]) => typeof value === 'string')
+          .map(([key, value]) => [key, String(value).trim()])
+      )
+    )
+    .filter((row) => Object.values(row).some(Boolean));
+  return rows.length ? rows : fallback;
+}
+
+export async function saveSiteContent(formData: FormData) {
+  await requireSession();
+  const text = (key: string) => String(formData.get(key) ?? '').trim();
+
+  const reset = formData.get('reset_logo') === 'on';
+  const url = text('logo_url');
+  const file = formData.get('logo_file');
+
+  let logo = '/media/brand/logo.png';
+  if (!reset) {
+    logo = url || '/media/brand/logo.png';
+    if (file instanceof File && file.size > 0) {
+      const uploaded = await saveUpload(file, 'brand');
+      if (uploaded) logo = uploaded;
+    }
+  }
+
+  const plainKeys = [
+    'brand_name_ar',
+    'brand_name_en',
+    'brand_tagline_ar',
+    'brand_tagline_en',
+    'contact_phone',
+    'contact_fax',
+    'contact_email',
+    'contact_address_ar',
+    'contact_address_en',
+    'contact_hours_ar',
+    'contact_hours_en',
+    'social_instagram',
+    'social_x',
+    'social_linkedin',
+    'social_facebook',
+    'social_youtube',
+    'social_whatsapp',
+  ];
+
+  await setSetting('logo_url', logo);
+  for (const key of plainKeys) {
+    await setSetting(key, text(key));
+  }
+
+  const parse = (field: string) => {
+    try {
+      return JSON.parse(String(formData.get(field) ?? '[]'));
+    } catch {
+      return [];
+    }
+  };
+
+  await setSetting('why_cards', JSON.stringify(cleanRows(parse('why_json'), defaultWhy)));
+  await setSetting('timeline', JSON.stringify(cleanRows(parse('timeline_json'), defaultTimeline)));
 
   revalidatePath('/', 'layout');
   revalidatePath('/admin/settings');

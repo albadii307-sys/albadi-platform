@@ -12,19 +12,22 @@ import { TeamCard } from '@/components/team-grid';
 import NewsRail, { Rail } from '@/components/news-rail';
 import ServicesIndex, { type ServiceGroupItem } from '@/components/services-index';
 import SiteMap from '@/components/site-map';
+import WhySection from '@/components/why-section';
 import { Counter, LiveClock } from '@/components/x-motion';
+import { getSiteSettings } from '@/lib/site-settings.server';
+import { siteAddress, siteHours, telHref } from '@/lib/site-settings';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Clock, Mail, Pin, Phone } from '@/components/icons';
 
 const SECTOR_MEDIA: Record<string, { image: string; logo?: string }> = {
   contracting: { image: '/media/projects/p5.webp', logo: '/media/companies/co-contracting.webp' },
-  'aluminium-wood-steel': { image: '/media/projects/p1.webp', logo: '/media/companies/co-aluminium.webp' },
-  'trade-import': { image: '/media/projects/p9.webp', logo: '/media/companies/co-trade.webp' },
-  'roads-bridges': { image: '/media/projects/p7.webp' },
-  'sand-gravel': { image: '/media/projects/p8.webp', logo: '/media/companies/co-mining.webp' },
-  'elevators-hvac': { image: '/media/projects/p10.webp', logo: '/media/companies/co-elevators.webp' },
-  'green-oasis-hotel': { image: '/media/csr/c2.webp', logo: '/media/companies/co-hotel.webp' },
-  'concrete-interlock': { image: '/media/projects/p11.webp', logo: '/media/companies/co-concrete.webp' },
-  'saham-private-school': { image: '/media/projects/p2.webp', logo: '/media/companies/co-school.webp' },
+  'real-estate-development': { image: '/media/projects/p4.webp' },
+  logistics: { image: '/media/projects/p7.webp' },
+  'trade-services': { image: '/media/projects/p9.webp', logo: '/media/companies/co-trade.webp' },
+  'hospitality-tourism': { image: '/media/csr/c2.webp', logo: '/media/companies/co-hotel.webp' },
+  education: { image: '/media/projects/p2.webp', logo: '/media/companies/co-school.webp' },
+  'energy-mining': { image: '/media/projects/p8.webp', logo: '/media/companies/co-mining.webp' },
+  investment: { image: '/media/projects/p3.webp' },
+  industry: { image: '/media/projects/p1.webp', logo: '/media/companies/co-aluminium.webp' },
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -46,13 +49,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const Arrow = locale === 'ar' ? ArrowLeft : ArrowRight;
   const ar = locale === 'ar';
 
-  const [sectors, companies, projects, news, services, team] = await Promise.all([
+  const [sectors, companies, projects, news, services, team, settings] = await Promise.all([
     getSectors(),
     getCompanies(),
     getProjects(true, 3),
     getNews('group', 5),
     getServices(),
     getTeam(),
+    getSiteSettings(),
   ]);
 
   const serviceCount = new Map<string, number>();
@@ -290,6 +294,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </div>
       </section>
+
+      <WhySection
+        items={settings.why}
+        locale={locale}
+        eyebrow={ar ? 'لماذا مجموعة البادي' : 'Why Al-Badi'}
+        title={ar ? 'ستة أسباب تجعلنا' : 'Six reasons we are'}
+        accent={ar ? 'شريكك الموثوق.' : 'your trusted partner.'}
+        lead={
+          ar
+            ? 'خبرة خمسة عقود، وقطاعات متكاملة، وكوادر عُمانية، ومعايير جودة معتمدة — هذا ما يجعل مجموعة البادي الخيار الأول لمشاريع عُمان.'
+            : 'Five decades of experience, integrated sectors, Omani talent and certified quality — that is what makes Al-Badi the first choice for Oman’s projects.'
+        }
+      />
 
       <section className="x-sectors" id="sectors">
         <div className="container">
@@ -560,7 +577,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </span>
                 <div>
                   <b>{t.contact.address}</b>
-                  <span>{t.contact.addressValue}</span>
+                  <span>{siteAddress(locale, settings)}</span>
                 </div>
               </li>
               <li>
@@ -569,8 +586,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </span>
                 <div>
                   <b>{t.contact.phone}</b>
-                  <a href="tel:+96826854411" dir="ltr">
-                    +968 26 854 411
+                  <a href={telHref(settings.phone)} dir="ltr">
+                    {settings.phone}
                   </a>
                 </div>
               </li>
@@ -580,8 +597,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </span>
                 <div>
                   <b>{t.contact.email}</b>
-                  <a href="mailto:albadi@albadigroup.com" dir="ltr">
-                    albadi@albadigroup.com
+                  <a href={`mailto:${settings.email}`} dir="ltr">
+                    {settings.email}
                   </a>
                 </div>
               </li>
@@ -591,7 +608,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 </span>
                 <div>
                   <b>{t.contact.hours}</b>
-                  <span>{t.contact.hoursValue}</span>
+                  <span>{siteHours(locale, settings)}</span>
                 </div>
               </li>
             </ul>
@@ -625,8 +642,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Link href={`/${locale}/request`} className="x-btn x-btn-accent">
                 {t.home.extra.startRequest} <Arrow size={17} />
               </Link>
-              <a href="tel:+96826854411" className="x-btn x-btn-ghost">
-                <Phone size={16} /> +968 26 854 411
+              <a href={telHref(settings.phone)} className="x-btn x-btn-ghost" dir="ltr">
+                <Phone size={16} /> {settings.phone}
               </a>
             </div>
           </div>

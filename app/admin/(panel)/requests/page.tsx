@@ -35,54 +35,54 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
           ))}
         </div>
 
-        <div className="panel">
-          {rows.length ? (
-            <table className="a-table">
-              <thead>
-                <tr>
-                  <th>الرقم</th>
-                  <th>الخدمة</th>
-                  <th>العميل</th>
-                  <th>الحالة</th>
-                  <th>التاريخ</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((request) => (
-                  <tr key={request.id}>
-                    <td dir="ltr" style={{ fontFamily: 'monospace', fontSize: '0.76rem' }}>
+        {rows.length ? (
+          <div className="a-cardgrid">
+            {rows.map((request) => (
+              <article className="a-card" key={request.id}>
+                <div className="a-card-body">
+                  <div className="a-card-top">
+                    <h3 dir="ltr" style={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>
                       {request.ref}
-                    </td>
-                    <td>
-                      <div className="row-title">{request.service_name ?? '—'}</div>
-                      {request.message ? <div className="row-sub">{request.message.slice(0, 70)}…</div> : null}
-                    </td>
-                    <td>
-                      <div className="row-title">{request.name}</div>
-                      <div className="row-sub" dir="ltr">
+                    </h3>
+                    <span className={`badge status-${request.status}`}>
+                      {requestStatuses.find((s) => s.value === request.status)?.label}
+                    </span>
+                  </div>
+                  <div className="req-card-main">
+                    <b>{request.service_name ?? '—'}</b>
+                    {request.message ? <p className="row-sub">{request.message.slice(0, 90)}…</p> : null}
+                  </div>
+                  <dl className="a-card-meta">
+                    <div>
+                      <dt>العميل</dt>
+                      <dd>{request.name}</dd>
+                    </div>
+                    <div>
+                      <dt>الهاتف</dt>
+                      <dd dir="ltr">
                         {request.phone}
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge status-${request.status}`}>
-                        {requestStatuses.find((s) => s.value === request.status)?.label}
-                      </span>
-                    </td>
-                    <td className="row-sub">{fmt(request.created_at)}</td>
-                    <td style={{ textAlign: 'end' }}>
-                      <Link href={`/admin/requests/${request.id}`} className="a-btn">
-                        تفاصيل
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
+                      </dd>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <dt>التاريخ</dt>
+                      <dd>{fmt(request.created_at)}</dd>
+                    </div>
+                  </dl>
+                </div>
+                <div className="a-card-actions">
+                  <span className="row-sub">{request.email ?? '—'}</span>
+                  <Link href={`/admin/requests/${request.id}`} className="a-btn ghost small">
+                    تفاصيل الطلب
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="panel">
             <div className="empty-state">لا توجد طلبات في هذه الحالة.</div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );

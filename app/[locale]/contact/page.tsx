@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation';
 import PageHero from '@/components/page-hero';
 import ContactForm from '@/components/contact-form';
 import { getDict, isLocale, type Locale } from '@/lib/i18n';
+import { getSiteSettings } from '@/lib/site-settings.server';
+import { siteAddress, siteHours, telHref } from '@/lib/site-settings';
+import SocialLinks from '@/components/social-links';
 import { Clock, Mail, Phone, Pin } from '@/components/icons';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -21,6 +24,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   if (!isLocale(raw)) notFound();
   const locale = raw;
   const t = getDict(locale);
+  const settings = await getSiteSettings();
 
   return (
     <>
@@ -34,8 +38,8 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </div>
               <div>
                 <b>{t.contact.phone}</b>
-                <a href="tel:+96826854411" dir="ltr">
-                  +968 26 854 411
+                <a href={telHref(settings.phone)} dir="ltr">
+                  {settings.phone}
                 </a>
               </div>
             </div>
@@ -45,7 +49,9 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </div>
               <div>
                 <b>{t.contact.fax}</b>
-                <span dir="ltr">+968 26 855 744</span>
+                <a href={telHref(settings.fax)} dir="ltr">
+                  {settings.fax}
+                </a>
               </div>
             </div>
             <div className="contact-item">
@@ -54,7 +60,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </div>
               <div>
                 <b>{t.contact.email}</b>
-                <a href="mailto:albadi@albadigroup.com">albadi@albadigroup.com</a>
+                <a href={`mailto:${settings.email}`}>{settings.email}</a>
               </div>
             </div>
             <div className="contact-item">
@@ -63,7 +69,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </div>
               <div>
                 <b>{t.contact.address}</b>
-                <span>{t.contact.addressValue}</span>
+                <span>{siteAddress(locale, settings)}</span>
               </div>
             </div>
             <div className="contact-item">
@@ -72,8 +78,17 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </div>
               <div>
                 <b>{t.contact.hours}</b>
-                <span>{t.contact.hoursValue}</span>
+                <span>{siteHours(locale, settings)}</span>
               </div>
+            </div>
+
+            <div className="contact-social">
+              <b>{locale === 'ar' ? 'تابعنا على' : 'Follow us'}</b>
+              <SocialLinks
+                settings={settings}
+                tone="light"
+                label={locale === 'ar' ? 'حسابات التواصل الاجتماعي' : 'Social media'}
+              />
             </div>
 
             <div className="side-cta" style={{ marginTop: 28 }}>

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Company, Locale, Sector, Service } from '@/lib/types';
 import { getDict, pick } from '@/lib/i18n';
+import { siteName, telHref, type SiteSettings } from '@/lib/site-settings';
+import SocialLinks from './social-links';
 import { ChevronDown, Mail, Menu, Phone, X } from './icons';
 
 type Props = {
@@ -12,10 +14,10 @@ type Props = {
   sectors: Sector[];
   companies: Company[];
   services: Service[];
-  logo: string;
+  settings: SiteSettings;
 };
 
-export default function SiteHeader({ locale, sectors, companies, services, logo }: Props) {
+export default function SiteHeader({ locale, sectors, companies, services, settings }: Props) {
   const t = getDict(locale);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -46,13 +48,13 @@ export default function SiteHeader({ locale, sectors, companies, services, logo 
 
       <header className={`site-header${isHome ? ' is-home' : ''}${open ? ' is-open' : ''}`}>
         <div className="container header-top">
-          <Link href={base} className="brand" aria-label={t.siteName}>
-            <img src={logo} alt={t.siteName} width={375} height={63} />
+          <Link href={base} className="brand" aria-label={siteName(locale, settings)}>
+            <img src={settings.logo} alt={siteName(locale, settings)} width={375} height={63} />
           </Link>
 
           <div className="header-top-side">
-            <a className="header-phone" href="tel:+96826854411" dir="ltr">
-              <Phone size={15} /> +968 26 854 411
+            <a className="header-phone" href={telHref(settings.phone)} dir="ltr">
+              <Phone size={15} /> {settings.phone}
             </a>
             <Link href={switchHref} className="header-lang" hrefLang={otherLocale} lang={otherLocale}>
               {t.otherLang}
@@ -177,7 +179,7 @@ export default function SiteHeader({ locale, sectors, companies, services, logo 
       {open && (
         <div className="mobile-drawer" id="mobile-menu" role="dialog" aria-modal="true" aria-label={t.nav.menu}>
           <div className="mobile-drawer-head">
-            <img src={logo} alt={t.siteName} height={34} />
+            <img src={settings.logo} alt={siteName(locale, settings)} height={34} />
             <button type="button" aria-label={t.nav.close} onClick={() => setOpen(false)}>
               <X size={22} />
             </button>
@@ -243,12 +245,13 @@ export default function SiteHeader({ locale, sectors, companies, services, logo 
               {t.otherLang}
             </Link>
           </nav>
-          <a href="tel:+96826854411" className="drawer-phone" dir="ltr">
-            <Phone size={16} /> +968 26 854 411
+          <a href={telHref(settings.phone)} className="drawer-phone" dir="ltr">
+            <Phone size={16} /> {settings.phone}
           </a>
-          <a href="mailto:albadi@albadigroup.com" className="drawer-phone">
-            <Mail size={16} /> albadi@albadigroup.com
+          <a href={`mailto:${settings.email}`} className="drawer-phone">
+            <Mail size={16} /> {settings.email}
           </a>
+          <SocialLinks settings={settings} tone="dark" label={ar ? 'حسابات التواصل الاجتماعي' : 'Social media'} />
         </div>
       )}
     </>

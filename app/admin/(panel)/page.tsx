@@ -247,43 +247,34 @@ export default async function DashboardPage() {
             </Link>
           </div>
           {recent.length ? (
-            <table className="a-table">
-              <thead>
-                <tr>
-                  <th>الرقم</th>
-                  <th>الخدمة</th>
-                  <th>العميل</th>
-                  <th>الحالة</th>
-                  <th>التاريخ</th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>
+            <div className="panel-body">
+              <div className="a-cardgrid">
                 {recent.map((request) => (
-                  <tr key={request.id}>
-                    <td dir="ltr" style={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>
-                      {request.ref}
-                    </td>
-                    <td className="row-title">{request.service_name ?? '—'}</td>
-                    <td>
-                      <div className="row-title">{request.name}</div>
-                      <div className="row-sub" dir="ltr">
-                        {request.phone}
+                  <article className="a-card" key={request.id}>
+                    <div className="a-card-body">
+                      <div className="a-card-top">
+                        <h3 dir="ltr" style={{ fontFamily: 'monospace', fontSize: '0.78rem' }}>
+                          {request.ref}
+                        </h3>
+                        <span className={`badge status-${request.status}`}>{statusLabel(request.status)}</span>
                       </div>
-                    </td>
-                    <td>
-                      <span className={`badge status-${request.status}`}>{statusLabel(request.status)}</span>
-                    </td>
-                    <td className="row-sub">{formatDate(request.created_at)}</td>
-                    <td style={{ textAlign: 'end' }}>
-                      <Link href={`/admin/requests/${request.id}`} className="a-btn">
+                      <div className="req-card-main">
+                        <b>{request.service_name ?? '—'}</b>
+                        <p>
+                          {request.name} · <span dir="ltr">{request.phone}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="a-card-actions">
+                      <span className="row-sub">{formatDate(request.created_at)}</span>
+                      <Link href={`/admin/requests/${request.id}`} className="a-btn ghost small">
                         عرض
                       </Link>
-                    </td>
-                  </tr>
+                    </div>
+                  </article>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
           ) : (
             <div className="empty-state">
               لا توجد طلبات بعد. جرّب إرسال طلب من{' '}

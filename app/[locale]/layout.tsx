@@ -4,7 +4,8 @@ import SiteHeader from '@/components/site-header';
 import SiteFooter from '@/components/site-footer';
 import { ScrollFX } from '@/components/x-motion';
 import { isLocale, getDict, locales, type Locale } from '@/lib/i18n';
-import { getCompanies, getSectors, getServices, getSiteLogo } from '@/lib/queries';
+import { getCompanies, getSectors, getServices } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/site-settings.server';
 
 export const revalidate = 60;
 
@@ -43,19 +44,19 @@ export default async function LocaleLayout({
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw;
-  const [sectors, companies, services, logo] = await Promise.all([
+  const [sectors, companies, services, settings] = await Promise.all([
     getSectors(),
     getCompanies(),
     getServices(),
-    getSiteLogo(),
+    getSiteSettings(),
   ]);
 
   return (
     <>
       <ScrollFX />
-      <SiteHeader locale={locale} sectors={sectors} companies={companies} services={services} logo={logo} />
+      <SiteHeader locale={locale} sectors={sectors} companies={companies} services={services} settings={settings} />
       <main id="main">{children}</main>
-      <SiteFooter locale={locale} sectors={sectors} logo={logo} />
+      <SiteFooter locale={locale} sectors={sectors} settings={settings} />
     </>
   );
 }

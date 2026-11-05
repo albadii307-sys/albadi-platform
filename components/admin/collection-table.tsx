@@ -84,74 +84,67 @@ export default function CollectionTable({ rows, columns, singular, showThumbs, c
         </span>
       </div>
 
-      <div className="panel">
-        {visible.length ? (
-          <table className="a-table">
-            <thead>
-              <tr>
-                {columns.map((column) => (
-                  <th key={column}>{column}</th>
-                ))}
-                <th>الحالة</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((row) => (
-                <tr key={row.id}>
-                  {columns.map((column, index) =>
-                    index === 0 ? (
-                      <td key={column} className="row-title">
-                        <div className="row-lead">
-                          {showThumbs ? (
-                            row.image ? (
-                              <span className="thumb">
-                                <img src={row.image} alt="" loading="lazy" />
-                              </span>
-                            ) : (
-                              <span className="thumb is-empty" aria-hidden="true">
-                                <ImageIcon size={16} />
-                              </span>
-                            )
-                          ) : null}
-                          <span className="row-lead-text">{row.title}</span>
-                        </div>
-                      </td>
-                    ) : (
-                      <td key={column}>{row.cells[index]}</td>
-                    )
-                  )}
-                  <td>
-                    <span className={`badge ${row.published ? 'live' : 'hidden'}`}>
-                      {row.published ? 'منشور' : 'مخفي'}
+      {visible.length ? (
+        <div className="a-cardgrid">
+          {visible.map((row) => (
+            <article className={`a-card${row.published ? '' : ' is-hidden'}`} key={row.id}>
+              {showThumbs ? (
+                <Link href={row.editHref} className="a-card-media" aria-label={`تعديل ${row.title}`}>
+                  {row.image ? (
+                    <img src={row.image} alt="" loading="lazy" />
+                  ) : (
+                    <span className="a-card-media-empty" aria-hidden="true">
+                      <ImageIcon size={26} />
                     </span>
-                  </td>
-                  <td>
-                    <div className="a-actions">
-                      <Link href={row.editHref} className="icon-btn" aria-label="تعديل">
-                        <Edit size={15} />
-                      </Link>
-                      <form
-                        action={row.deleteAction}
-                        onSubmit={(event) => {
-                          if (!window.confirm('حذف هذا العنصر نهائياً؟ لا يمكن التراجع.')) {
-                            event.preventDefault();
-                          }
-                        }}
-                      >
-                        <button type="submit" className="icon-btn danger" aria-label="حذف">
-                          <Trash size={15} />
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
+                  )}
+                </Link>
+              ) : null}
+              <div className="a-card-body">
+                <div className="a-card-top">
+                  <h3>
+                    <Link href={row.editHref}>{row.title}</Link>
+                  </h3>
+                  <span className={`badge ${row.published ? 'live' : 'hidden'}`}>
+                    {row.published ? 'منشور' : 'مخفي'}
+                  </span>
+                </div>
+                {columns.length > 1 ? (
+                  <dl className="a-card-meta">
+                    {columns.slice(1).map((column, index) => (
+                      <div key={column}>
+                        <dt>{column}</dt>
+                        <dd>{row.cells[index + 1] ?? '—'}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null}
+              </div>
+              <div className="a-card-actions">
+                <Link href={row.editHref} className="a-btn ghost small">
+                  <Edit size={14} /> تعديل
+                </Link>
+                <form
+                  action={row.deleteAction}
+                  onSubmit={(event) => {
+                    if (!window.confirm('حذف هذا العنصر نهائياً؟ لا يمكن التراجع.')) {
+                      event.preventDefault();
+                    }
+                  }}
+                >
+                  <button type="submit" className="icon-btn danger" aria-label="حذف">
+                    <Trash size={15} />
+                  </button>
+                </form>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div className="panel">
           <div className="empty-state">
-            {rows.length ? 'لا نتائج مطابقة للبحث أو التصفية.' : (
+            {rows.length ? (
+              'لا نتائج مطابقة للبحث أو التصفية.'
+            ) : (
               <>
                 لا توجد عناصر بعد.{' '}
                 <Link href={createHref} style={{ textDecoration: 'underline' }}>
@@ -161,8 +154,8 @@ export default function CollectionTable({ rows, columns, singular, showThumbs, c
               </>
             )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }
