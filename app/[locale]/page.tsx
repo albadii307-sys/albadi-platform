@@ -133,15 +133,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     ? '«أول نشاط تجاري سُجل عام 1976، ومنذ ذلك الحين تواصل المجموعة بناء عُمان بكفاءات عُمانية — حتى بلغت نسبة التعمين في بعض الإدارات 100%.»'
     : '“Our first commercial activity was registered in 1976. Since then we have kept building Oman with Omani talent — reaching 100% Omanisation in some departments.”';
 
-  const quickLinks = [
-    { href: '#sectors', label: t.nav.sectors },
-    { href: '#services', label: t.nav.services },
-    { href: '#journey', label: ar ? 'محطات المسيرة' : 'Our journey' },
-    { href: '#projects', label: t.nav.projects },
-    { href: '#news', label: t.nav.news },
-    { href: '#location', label: t.nav.contact },
-  ];
-
   return (
     <div className="x-home">
       <section className="x-hero">
@@ -222,20 +213,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </div>
       </section>
-
-      <nav className="x-quicknav" aria-label={ar ? 'وصول سريع لأقسام الصفحة' : 'Quick page navigation'}>
-        <div className="container x-quicknav-row">
-          <span className="x-quicknav-label">{ar ? 'انتقل إلى' : 'Jump to'}</span>
-          {quickLinks.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-          <Link href={`/${locale}/request`} className="x-quicknav-cta">
-            {t.nav.request} <Arrow size={14} />
-          </Link>
-        </div>
-      </nav>
 
       <section className="x-intro" id="about">
         <div className="container">

@@ -5335,73 +5335,8 @@ body.is-scrolled .site-header .brand img,
 }
 
 /* ============================================================
-   Homepage compaction + quick access + service cards
+   Homepage compaction + service cards
    ============================================================ */
-
-.x-quicknav {
-  position: relative;
-  z-index: 3;
-  background: #fff;
-  border-bottom: 1px solid rgba(4, 23, 15, 0.08);
-  box-shadow: 0 18px 34px -32px rgba(4, 23, 15, 0.5);
-}
-
-.x-quicknav-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-block: 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.x-quicknav-row::-webkit-scrollbar {
-  display: none;
-}
-
-.x-quicknav-label {
-  flex: none;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #8a9a90;
-  margin-inline-end: 4px;
-  white-space: nowrap;
-}
-
-.x-quicknav a {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(4, 23, 15, 0.1);
-  background: #fbfaf6;
-  font-size: 0.78rem;
-  font-weight: 500;
-  color: #33463b;
-  white-space: nowrap;
-  transition: border-color 0.25s, color 0.25s, background 0.25s;
-}
-
-.x-quicknav a:hover {
-  border-color: rgba(226, 96, 31, 0.45);
-  color: var(--x-accent);
-  background: #fff;
-}
-
-.x-quicknav-cta {
-  margin-inline-start: auto;
-  background: var(--x-forest-3, #08281c) !important;
-  border-color: transparent !important;
-  color: #fff !important;
-}
-
-.x-quicknav-cta:hover {
-  background: var(--x-accent) !important;
-  color: #fff !important;
-}
 
 /* Service text cards */
 .x-svcards {
@@ -5547,10 +5482,6 @@ body.is-scrolled .site-header .brand img,
 @media (max-width: 860px) {
   .x-svcards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .x-quicknav-cta {
-    margin-inline-start: 0;
   }
 }
 
