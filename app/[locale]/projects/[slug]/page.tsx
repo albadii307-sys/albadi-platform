@@ -51,7 +51,8 @@ export default async function ProjectPage({ params }: Params) {
   const project = await getProject(slug);
   if (!project) notFound();
 
-  const [sectors, all, settings] = await Promise.all([getSectors(), getProjects(false), getSiteSettings()]);
+  const [sectors, rows, settings] = await Promise.all([getSectors(), getProjects(false), getSiteSettings()]);
+  const all = [...rows].sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || a.sort_order - b.sort_order);
   const sector = sectors.find((item) => item.id === project.sector_id);
   const name = pick(project, 'title', locale);
   const body = pick(project, 'body', locale);

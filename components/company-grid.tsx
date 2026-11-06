@@ -15,23 +15,13 @@ export type CompanyItem = {
   photo?: string | null;
 };
 
-const prefixes = ['شركة', 'مؤسسة', 'فندق', 'مدرسة', 'مجموعة'];
-
-function monogram(name: string) {
-  const word = name.split(/\s+/).find((part) => !prefixes.includes(part)) ?? name;
-  return word.replace(/^ال/, '').charAt(0);
-}
-
 export function CompanyCard({ item, index, locale }: { item: CompanyItem; index: number; locale: string }) {
-  const href = item.website || `/${locale}/sectors/${item.sectorSlug}`;
-  const external = Boolean(item.website);
+  const href = `/${locale}/companies/${item.slug}`;
   return (
     <Link
       id={`company-${item.slug}`}
       href={href}
-      target={external ? '_blank' : undefined}
-      rel={external ? 'noopener noreferrer' : undefined}
-      className={`x-co reveal${index === 0 ? ' is-lead' : ''}`}
+      className={`x-co reveal${index === 0 ? ' is-lead' : ''}${item.logo ? ' has-logo' : ''}`}
       onPointerMove={(event) => {
         const rect = event.currentTarget.getBoundingClientRect();
         event.currentTarget.style.setProperty('--mx', `${event.clientX - rect.left}px`);
@@ -47,11 +37,7 @@ export function CompanyCard({ item, index, locale }: { item: CompanyItem; index:
         <span className="x-co-logo">
           <img src={item.logo} alt={item.name} loading="lazy" />
         </span>
-      ) : (
-        <span className="x-co-mono" aria-hidden="true">
-          {monogram(item.name)}
-        </span>
-      )}
+      ) : null}
       <span className="x-co-tag">
         <Building size={13} />
         {item.sector}
@@ -59,7 +45,7 @@ export function CompanyCard({ item, index, locale }: { item: CompanyItem; index:
       <h3>{item.name}</h3>
       <p>{item.description}</p>
       <span className="x-co-go">
-        {external ? (locale === 'ar' ? 'الموقع الإلكتروني' : 'Website') : locale === 'ar' ? 'استكشف القطاع' : 'Explore sector'}
+        {locale === 'ar' ? 'عرض الشركة' : 'View company'}
         <ArrowUpRight size={15} />
       </span>
     </Link>

@@ -5,18 +5,12 @@ import { ArrowUpRight } from './icons';
 
 export type SectorCompanyItem = {
   id: string;
+  slug: string;
   name: string;
   description: string;
   website: string | null;
   logo: string | null;
 };
-
-const prefixes = ['شركة', 'مؤسسة', 'فندق', 'مدرسة', 'مجموعة'];
-
-function monogram(name: string) {
-  const word = name.split(/\s+/).find((part) => !prefixes.includes(part)) ?? name;
-  return word.replace(/^ال/, '').charAt(0);
-}
 
 export default function SectorCompanies({
   items,
@@ -28,15 +22,12 @@ export default function SectorCompanies({
   return (
     <div className="x-sco">
       {items.map((item, index) => {
-        const href = item.website || `/${locale}/companies`;
-        const external = Boolean(item.website);
+        const href = `/${locale}/companies/${item.slug}`;
         return (
           <Link
             key={item.id}
             href={href}
-            target={external ? '_blank' : undefined}
-            rel={external ? 'noopener noreferrer' : undefined}
-            className="x-sco-card reveal"
+            className={`x-sco-card reveal${item.logo ? '' : ' no-logo'}`}
             onPointerMove={(event) => {
               const rect = event.currentTarget.getBoundingClientRect();
               event.currentTarget.style.setProperty('--mx', `${event.clientX - rect.left}px`);
@@ -49,11 +40,7 @@ export default function SectorCompanies({
               <span className="x-sco-logo">
                 <img src={item.logo} alt={item.name} loading="lazy" />
               </span>
-            ) : (
-              <span className="x-sco-mono" aria-hidden="true">
-                {monogram(item.name)}
-              </span>
-            )}
+            ) : null}
             <span className="x-sco-body">
               <b>{item.name}</b>
               <small>{item.description}</small>

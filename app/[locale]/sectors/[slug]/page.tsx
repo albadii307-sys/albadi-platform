@@ -3,13 +3,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import ServiceGrid from '@/components/service-grid';
 import SectorCompanies from '@/components/sector-companies';
-import SectorGallery from '@/components/sector-gallery';
+import PhotoGallery from '@/components/photo-gallery';
 import { Counter } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Check, Phone, Pin } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { jsonLd, siteUrl } from '@/lib/jsonld';
 import { getCompanies, getProjects, getSector, getSectors, getServices } from '@/lib/queries';
 import { telHref } from '@/lib/site-settings';
+import { usableGallery } from '@/lib/sector-media';
 import { getSiteSettings } from '@/lib/site-settings.server';
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
@@ -56,17 +57,26 @@ export default async function SectorPage({ params }: Params) {
   const index = sectors.findIndex((item) => item.id === sector.id);
   const prev = sectors[(index - 1 + sectors.length) % sectors.length];
   const next = sectors[(index + 1) % sectors.length];
-  const related = projects.filter((project) => project.sector_id === sector.id).slice(0, 6);
+  const related = projects
+    .filter((project) => project.sector_id === sector.id)
+    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || a.sort_order - b.sort_order)
+    .slice(0, 6);
   const sectorCompanies = companies.filter((company) => company.sector_id === sector.id);
   const companyNames = new Map(companies.map((company) => [company.id, pick(company, 'name', locale)]));
   const body = pick(sector, 'body', locale);
   const name = pick(sector, 'name', locale);
 
-  const gallery = settings.gallery[sector.id] ?? [];
+  const gallery = usableGallery(settings.gallery[sector.id]);
   const workImages = gallery.length
     ? gallery
     : Array.from(new Set(related.map((project) => project.cover_url).filter((url): url is string => Boolean(url))));
   const introCover = workImages[0] ?? sector.hero_url ?? '/media/projects/p4.webp';
+
+  const showcaseStats = [
+    { value: services.length, label: ar ? 'خدمة متاحة' : 'Services' },
+    { value: sectorCompanies.length, label: ar ? 'شركة تابعة' : 'Companies' },
+    { value: related.length, label: ar ? 'مشروع' : 'Projects' },
+  ].filter((stat) => stat.value > 0);
 
   return (
     <>
@@ -135,55 +145,18 @@ export default async function SectorPage({ params }: Params) {
 
           <div className="x-sh-foot">
             <p className="x-sh-sum">{pick(sector, 'summary', locale)}</p>
-            <div className="x-cat-stats">
-              <div>
-                <b>
-                  <Counter value={services.length} />
-                </b>
-                <small>{ar ? 'خدمة متاحة' : 'Services'}</small>
+            {showcaseStats.length ? (
+              <div className="x-cat-stats">
+                {showcaseStats.map((stat) => (
+                  <div key={stat.label}>
+                    <b>
+                      <Counter value={stat.value} />
+                    </b>
+                    <small>{stat.label}</small>
+                  </div>
+                ))}
               </div>
-              <div>
-                <b>
-                  <Counter value={sectorCompanies.length} />
-                </b>
-                <small>{ar ? 'شركة تابعة' : 'Companies'}</small>
-              </div>
-              <div>
-                <b>
-                  <Counter value={related.length} />
-                </b>
-                <small>{ar ? 'مشروع منفذ' : 'Projects'}</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="x-secstats" aria-label={ar ? 'أرقام القطاع' : 'Sector at a glance'}>
-        <div className="container x-secstats-grid">
-          <div>
-            <b>
-              <Counter value={new Date().getFullYear() - 1976} />
-            </b>
-            <small>{ar ? 'عاماً من الخبرة' : 'Years of experience'}</small>
-          </div>
-          <div>
-            <b>
-              <Counter value={services.length} />
-            </b>
-            <small>{ar ? 'خدمة متاحة' : 'Services'}</small>
-          </div>
-          <div>
-            <b>
-              <Counter value={sectorCompanies.length} />
-            </b>
-            <small>{ar ? 'شركة تابعة' : 'Companies'}</small>
-          </div>
-          <div>
-            <b>
-              <Counter value={related.length} />
-            </b>
-            <small>{ar ? 'مشروع منفذ' : 'Projects'}</small>
+            ) : null}
           </div>
         </div>
       </section>
@@ -230,14 +203,30 @@ export default async function SectorPage({ params }: Params) {
 
             {body ? <article className="x-prose reveal" dangerouslySetInnerHTML={{ __html: body }} /> : null}
 
-            <SectorGallery
-              images={workImages}
-              name={name}
-              eyebrow={ar ? 'من أعمالنا' : 'Our work'}
-              title={ar ? 'صور من مشاريع' : 'Photographs from'}
-              accent={ar ? 'هذا القطاع.' : 'this sector.'}
-              countLabel={ar ? 'صورة' : 'Photo'}
-            />
+            {workImages.length > 1 ? (
+              <section className="x-sector-block">
+                <div className="x-block-head reveal">
+                  <div>
+                    <span className="x-eyebrow">
+                      <i aria-hidden="true" />
+                      {ar ? 'أرشيف القطاع' : 'Sector archive'}
+                    </span>
+                    <h2 className="x-h2">
+                      {ar ? 'لقطات من هذا' : 'Scenes from this'}
+                      <br />
+                      <em>{ar ? 'القطاع.' : 'sector.'}</em>
+                    </h2>
+                  </div>
+                  <span className="x-block-count">{workImages.length}</span>
+                </div>
+                <PhotoGallery
+                  images={workImages}
+                  name={name}
+                  locale={locale}
+                  countLabel={ar ? 'صورة' : 'Photo'}
+                />
+              </section>
+            ) : null}
 
             {services.length ? (
               <section className="x-sector-block">
@@ -290,6 +279,7 @@ export default async function SectorPage({ params }: Params) {
                 <SectorCompanies
                   items={sectorCompanies.map((company) => ({
                     id: company.id,
+                    slug: company.slug,
                     name: pick(company, 'name', locale),
                     description: pick(company, 'description', locale),
                     website: company.website,

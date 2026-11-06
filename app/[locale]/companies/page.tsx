@@ -7,6 +7,8 @@ import { ArrowLeft, ArrowRight } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { companiesCount, sectorsCount } from '@/lib/plural';
 import { getCompanies, getSectors } from '@/lib/queries';
+import { getSiteSettings } from '@/lib/site-settings.server';
+import { SECTOR_MEDIA } from '@/lib/sector-media';
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -31,7 +33,7 @@ export default async function CompaniesPage({ params }: Params) {
   const t = getDict(locale);
   const Arrow = ar ? ArrowLeft : ArrowRight;
 
-  const [companies, sectors] = await Promise.all([getCompanies(), getSectors()]);
+  const [companies, sectors, settings] = await Promise.all([getCompanies(), getSectors(), getSiteSettings()]);
 
   const items = companies.map((company) => {
     const sector = sectors.find((item) => item.id === company.sector_id);
@@ -44,6 +46,9 @@ export default async function CompaniesPage({ params }: Params) {
       sectorSlug: sector?.slug ?? '',
       website: company.website,
       logo: company.logo_url,
+      photo: sector
+        ? SECTOR_MEDIA[sector.slug]?.image ?? sector.hero_url ?? settings.gallery[sector.id]?.[0]
+        : null,
     };
   });
 

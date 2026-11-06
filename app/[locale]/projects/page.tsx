@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { Counter } from '@/components/x-motion';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { getProjects, getSectors } from '@/lib/queries';
-import { ArrowUpRight, Building, Pin } from '@/components/icons';
+import { ArrowUpRight, Clock, Pin } from '@/components/icons';
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -30,10 +30,14 @@ export default async function ProjectsPage({ params, searchParams }: Props) {
   const t = getDict(locale);
   const ar = locale === 'ar';
 
-  const [projects, sectors] = await Promise.all([getProjects(), getSectors()]);
+  const [rows, sectors] = await Promise.all([getProjects(), getSectors()]);
+  const projects = [...rows].sort(
+    (a, b) => (b.year ?? 0) - (a.year ?? 0) || a.sort_order - b.sort_order
+  );
   const activeSector = sector ? sectors.find((item) => item.slug === sector) : undefined;
   const filtered = activeSector ? projects.filter((project) => project.sector_id === activeSector.id) : projects;
   const featured = projects.filter((project) => project.is_featured).length;
+  const latestYear = projects.find((project) => project.year)?.year ?? null;
 
   return (
     <>
@@ -110,15 +114,23 @@ export default async function ProjectsPage({ params, searchParams }: Props) {
             })}
           </nav>
 
-          {activeSector ? (
-            <div className="x-pf-active">
-              <Building size={16} />
-              {ar ? 'مشاريع قطاع' : 'Projects in'} {pick(activeSector, 'name', locale)}
+          <div className="x-pf-active">
+            <Clock size={16} />
+            <span>
+              {activeSector
+                ? ar
+                  ? `مشاريع قطاع ${pick(activeSector, 'name', locale)} — من الأحدث إلى الأقدم.`
+                  : `${pick(activeSector, 'name', locale)} projects — newest first.`
+                : ar
+                  ? `سجل المشاريع المنفذة${latestYear ? ` حتى ${latestYear}` : ''} — مرتبة من الأحدث إلى الأقدم.`
+                  : `Delivered project record${latestYear ? ` through ${latestYear}` : ''} — newest first.`}
+            </span>
+            {activeSector ? (
               <Link href={`/${locale}/sectors/${activeSector.slug}`}>
                 {ar ? 'صفحة القطاع' : 'Sector page'} <ArrowUpRight size={14} />
               </Link>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
 
           {filtered.length ? (
             <div className="x-pf">

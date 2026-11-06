@@ -20,17 +20,30 @@ export default function MediaGallery({ items, locale }: { items: MediaEntry[]; l
   const [year, setYear] = useState<string>('all');
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
+  const unique = useMemo(() => {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      const key = `${item.kind}:${item.url}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [items]);
+
   const years = useMemo(
-    () => Array.from(new Set(items.map((item) => item.year).filter((value): value is number => value !== null))).sort((a, b) => b - a),
-    [items]
+    () =>
+      Array.from(new Set(unique.map((item) => item.year).filter((value): value is number => value !== null))).sort(
+        (a, b) => b - a
+      ),
+    [unique]
   );
 
   const visible = useMemo(
     () =>
-      items.filter(
+      unique.filter(
         (item) => (filter === 'all' || item.kind === filter) && (year === 'all' || String(item.year) === year)
       ),
-    [items, filter, year]
+    [unique, filter, year]
   );
 
   const images = useMemo(() => visible.filter((item) => item.kind === 'image'), [visible]);
@@ -67,9 +80,9 @@ export default function MediaGallery({ items, locale }: { items: MediaEntry[]; l
   const NextIcon = ar ? ArrowLeft : ArrowRight;
 
   const filters: { key: Filter; label: string; count: number }[] = [
-    { key: 'all', label: ar ? 'الكل' : 'All', count: items.length },
-    { key: 'image', label: ar ? 'صور' : 'Photos', count: items.filter((item) => item.kind === 'image').length },
-    { key: 'pdf', label: ar ? 'ملفات' : 'Documents', count: items.filter((item) => item.kind === 'pdf').length },
+    { key: 'all', label: ar ? 'الكل' : 'All', count: unique.length },
+    { key: 'image', label: ar ? 'صور' : 'Photos', count: unique.filter((item) => item.kind === 'image').length },
+    { key: 'pdf', label: ar ? 'ملفات' : 'Documents', count: unique.filter((item) => item.kind === 'pdf').length },
   ];
 
   return (

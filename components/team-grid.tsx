@@ -11,17 +11,11 @@ export type TeamCardItem = {
   order: number;
 };
 
-const honorifics = /^(الشيخ|الشيخة|الدكتور|الدكتورة|المهندس|المهندسة|السيد|السيدة|Sheikh|Sheikha|Dr\.?|Eng\.?|Mr\.?|Mrs\.?|Ms\.?)\s+/i;
-
-function monogram(name: string) {
-  const trimmed = name.replace(honorifics, '').trim();
-  return trimmed.charAt(0) || '•';
-}
-
 export function TeamCard({ member, locale }: { member: TeamCardItem; locale: Locale }) {
   return (
     <article
       className={`x-tm reveal${member.photo ? '' : ' no-photo'}`}
+      data-order={String(member.order).padStart(2, '0')}
       tabIndex={0}
       aria-label={`${member.name} — ${member.role}`}
       onPointerMove={(event) => {
@@ -31,20 +25,21 @@ export function TeamCard({ member, locale }: { member: TeamCardItem; locale: Loc
         el.style.setProperty('--my', `${((event.clientY - rect.top) / rect.height) * 100}%`);
       }}
     >
-      <div className="x-tm-media">
-        {member.photo ? (
+      {member.photo ? (
+        <div className="x-tm-media">
           <img src={member.photo} alt={member.name} loading="lazy" />
-        ) : (
-          <span className="x-tm-mono" aria-hidden="true">
-            {monogram(member.name)}
+          <span className="x-tm-glow" aria-hidden="true" />
+          <span className="x-tm-n" aria-hidden="true">
+            {String(member.order).padStart(2, '0')}
+          </span>
+        </div>
+      ) : null}
+      <div className="x-tm-body">
+        {member.photo ? null : (
+          <span className="x-tm-idx" aria-hidden="true">
+            {String(member.order).padStart(2, '0')}
           </span>
         )}
-        <span className="x-tm-glow" aria-hidden="true" />
-        <span className="x-tm-n" aria-hidden="true">
-          {String(member.order).padStart(2, '0')}
-        </span>
-      </div>
-      <div className="x-tm-body">
         <b className="x-tm-name">{member.name}</b>
         <span className="x-tm-role">{member.role}</span>
         {member.bio ? <p className="x-tm-bio">{member.bio}</p> : null}

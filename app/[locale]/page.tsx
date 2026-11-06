@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isLocale, getDict, pick, type Locale } from '@/lib/i18n';
 import { getCompanies, getNews, getProjects, getSectors, getServices, getTeam } from '@/lib/queries';
-import { companiesCount, enginesCount, sectorsCount } from '@/lib/plural';
 import { NewsCard } from '@/components/cards';
 import HeroMedia from '@/components/hero-media';
 import EditorialSectors from '@/components/editorial-sectors';
@@ -42,8 +41,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const [sectors, companies, projects, news, services, team, settings] = await Promise.all([
     getSectors(),
     getCompanies(),
-    getProjects(true, 3),
-    getNews('group', 5),
+    getProjects(),
+    getNews(undefined, 5),
     getServices(),
     getTeam(),
     getSiteSettings(),
@@ -70,14 +69,18 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     services: serviceCount.get(sector.id) ?? 0,
     companies: companyCount.get(sector.id) ?? 0,
     image:
-      settings.gallery[sector.id]?.[0] ??
       SECTOR_MEDIA[sector.slug]?.image ??
       sector.hero_url ??
+      settings.gallery[sector.id]?.[0] ??
       '/media/projects/p4.webp',
     logo: SECTOR_MEDIA[sector.slug]?.logo ?? null,
   }));
 
-  const homeSectors = showcase.slice(0, 6);
+  const homeSectors = showcase;
+
+  const homeProjects = [...projects]
+    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || a.sort_order - b.sort_order)
+    .slice(0, 3);
 
   const companyItems = companies.map((company) => {
     const sector = sectors.find((item) => item.id === company.sector_id);
@@ -118,14 +121,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     order: index + 1,
   }));
 
+  const yearsOfExperience = new Date().getFullYear() - 1976;
   const stats = [
-    { value: 1976, label: t.home.stats[0].label, scramble: true },
-    { value: sectors.length, label: t.home.stats[1].label },
-    { value: companies.length, label: t.home.stats[2].label },
-    { value: new Date().getFullYear() - 1976, label: t.home.stats[3].label },
+    { value: yearsOfExperience, label: ar ? 'عاماً من الخبرة' : 'Years of experience' },
+    { value: sectors.length, label: ar ? 'قطاعات تشغيلية' : 'Operating sectors' },
+    { value: companies.length, label: ar ? 'شركة تابعة' : 'Group companies' },
   ];
 
-  const heroLines = ar ? ['نبني عُمان', 'منذ'] : ['Building Oman', 'since'];
+  const heroLines = ar ? ['نبني عُمان', 'منذ خمسة عقود'] : ['Building Oman', 'for five decades'];
   const heroSlides = [
     { src: '/media/hero/hero-1.webp', label: ar ? 'مشاريع المقاولات والبناء' : 'Contracting & construction' },
     { src: '/media/hero/hero-2.webp', label: ar ? 'مجمعات ومبانٍ حكومية' : 'Government complexes' },
@@ -133,8 +136,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     { src: '/media/hero/hero-4.webp', label: ar ? 'التعدين والمحاجر' : 'Mining & quarries' },
   ];
   const quote = ar
-    ? '«أول نشاط تجاري سُجل عام 1976، ومنذ ذلك الحين تواصل المجموعة بناء عُمان بكفاءات عُمانية — حتى بلغت نسبة التعمين في بعض الإدارات 100%.»'
-    : '“Our first commercial activity was registered in 1976. Since then we have kept building Oman with Omani talent — reaching 100% Omanisation in some departments.”';
+    ? '«على مدى خمسة عقود، نبني عُمان بكفاءات عُمانية — حتى بلغت نسبة التعمين في بعض الإدارات 100%.»'
+    : '“For five decades we have built Oman with Omani talent — reaching 100% Omanisation in some departments.”';
 
   return (
     <div className="x-home">
@@ -164,13 +167,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <span>{heroLines[0]}</span>
             </span>
             <span className="x-line x-line-accent">
-              <span>
-                {heroLines[1]}{' '}
-                <em>
-                  <Counter value={1976} scramble className="x-year" />
-                  <i aria-hidden="true">.</i>
-                </em>
-              </span>
+              <span>{heroLines[1]}.</span>
             </span>
           </h1>
 
@@ -228,7 +225,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {stats.map((stat) => (
                 <div className="x-stat" key={stat.label}>
                   <span className="x-stat-num">
-                    <Counter value={stat.value} scramble={stat.scramble} />
+                    <Counter value={stat.value} />
                   </span>
                   <span className="x-stat-label">{stat.label}</span>
                 </div>
@@ -260,11 +257,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <h2 className="x-h2">
                 {ar ? 'مجموعة واحدة.' : 'One group.'}
                 <br />
-                <em>
-                  {ar
-                    ? `${enginesCount(sectors.length, locale)} للنمو.`
-                    : `${enginesCount(sectors.length, locale)} of growth.`}
-                </em>
+                <em>{ar ? 'خبرة متكاملة.' : 'integrated expertise.'}</em>
               </h2>
               <p className="x-lead">{t.home.aboutText}</p>
 
@@ -334,7 +327,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 {t.nav.sectors}
               </span>
               <h2 className="x-h2">
-                {`${sectorsCount(sectors.length, locale)}.`}
+                {ar ? 'قطاعاتنا.' : 'Our sectors.'}
                 <br />
                 <em>{ar ? 'منظومة واحدة.' : 'One ecosystem.'}</em>
               </h2>
@@ -342,7 +335,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <p>{t.home.sectorsText}</p>
           </div>
 
-          <EditorialSectors items={homeSectors} locale={locale} />
+          <EditorialSectors items={homeSectors} locale={locale} showIndex />
 
           <div className="x-sec-foot">
             <span className="x-hint">
@@ -374,8 +367,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <div className="x-co-head-side">
                 <p>
                   {ar
-                    ? `${companiesCount(companies.length, locale)} تعمل معاً لتغطية سلسلة القيمة كاملة — من التصميم والتنفيذ إلى التشغيل والخدمات.`
-                    : `${companiesCount(companies.length, locale)} working together across the full value chain — from design and delivery to operations and services.`}
+                    ? 'شركات المجموعة تعمل معاً لتغطية سلسلة القيمة كاملة — من التصميم والتنفيذ إلى التشغيل والخدمات.'
+                    : 'Group companies work together across the full value chain — from design and delivery to operations and services.'}
                 </p>
                 <Link href={`/${locale}/companies`} className="x-link">
                   {t.common.viewAll} <Arrow size={16} />
@@ -415,8 +408,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <div className="x-co-head-side">
                 <p>
                   {ar
-                    ? `${services.length} خدمة موزّعة على ${serviceGroups.length} قطاعات — اختر خدمتك وأرسل الطلب مباشرة إلى فريقنا.`
-                    : `${services.length} services across ${serviceGroups.length} sectors — pick yours and send the request straight to our team.`}
+                    ? 'خدمات متخصصة موزّعة على قطاعات المجموعة — اختر خدمتك وأرسل الطلب مباشرة إلى فريقنا.'
+                    : 'Specialised services across the group’s sectors — pick yours and send the request straight to our team.'}
                 </p>
                 <Link href={`/${locale}/request`} className="x-link">
                   {t.nav.request} <Arrow size={16} />
@@ -454,8 +447,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </div>
               <p>
                 {ar
-                  ? 'منذ 1976 تُدار المجموعة بقيادة عُمانية تجمع بين خبرة العقود ورؤية واضحة لما هو قادم.'
-                  : 'Since 1976 the group has been led by Omani leadership that pairs decades of experience with a clear view of what comes next.'}
+                  ? 'على مدى خمسة عقود، تُدار المجموعة بقيادة عُمانية تجمع بين خبرة ميدانية ورؤية واضحة لما هو قادم.'
+                  : 'For five decades the group has been led by Omani leadership that pairs hands-on experience with a clear view of what comes next.'}
               </p>
             </div>
 
@@ -474,7 +467,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="x-sec-foot">
               <span className="x-hint">
                 <i aria-hidden="true" />
-                {ar ? 'قصتنا منذ 1976' : 'Our story since 1976'}
+                {ar ? 'قصة خمسة عقود' : 'A five-decade story'}
               </span>
               <Link href={`/${locale}/about`} className="x-link light">
                 {t.nav.about} <Arrow size={16} />
@@ -502,7 +495,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
 
           <div className="x-gallery">
-            {projects.map((project, index) => (
+            {homeProjects.map((project, index) => (
               <Link
                 key={project.id}
                 href={`/${locale}/projects/${project.slug}`}
@@ -582,8 +575,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </h2>
             <p>
               {ar
-                ? 'من ولاية صحم انطلقت المجموعة عام 1976، وما زال المقر الرئيسي هناك — قريباً من القطاعات والمشاريع التي نخدمها.'
-                : 'The group started in Saham in 1976, and the head office remains there — close to the sectors and projects we serve.'}
+                ? 'من ولاية صحم انطلقت المجموعة قبل خمسة عقود، وما زال المقر الرئيسي هناك — قريباً من القطاعات والمشاريع التي نخدمها.'
+                : 'The group started in Saham five decades ago, and the head office remains there — close to the sectors and projects we serve.'}
             </p>
 
             <ul className="x-loc-rows">

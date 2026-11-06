@@ -66,10 +66,10 @@ const dictionary = {
       home: 'الرئيسية',
     },
     home: {
-      heroBadge: 'مجموعة عُمانية منذ 1976',
-      heroTitle: 'نبني عُمان منذ 1976',
+      heroBadge: 'مجموعة عُمانية متعددة القطاعات',
+      heroTitle: 'نبني عُمان منذ خمسة عقود',
       heroText:
-        'قطاعات متكاملة في المقاولات والصناعة والتجارة والتعليم والضيافة، بقيادة كوادر عُمانية وخبرة تجاوزت أربعة عقود.',
+        'قطاعات متكاملة في المقاولات والصناعة والتجارة والتعليم والضيافة، بقيادة كوادر عُمانية وخبرة تمتد خمسة عقود.',
       heroCta: 'تعرّف على قطاعاتنا',
       heroCta2: 'اطلب خدمة',
       sectorsTitle: 'قطاعات المجموعة',
@@ -234,10 +234,10 @@ const dictionary = {
       home: 'Home',
     },
     home: {
-      heroBadge: 'An Omani group since 1976',
-      heroTitle: 'Building Oman since 1976',
+      heroBadge: 'A multi-sector Omani group',
+      heroTitle: 'Building Oman for five decades',
       heroText:
-        'Integrated sectors across construction, manufacturing, trade, education and hospitality — led by Omani talent with over four decades of experience.',
+        'Integrated sectors across construction, manufacturing, trade, education and hospitality — led by Omani talent with five decades of experience.',
       heroCta: 'Explore our sectors',
       heroCta2: 'Request a service',
       sectorsTitle: 'Our sectors',

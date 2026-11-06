@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import SectorIndexNav from './sector-index-nav';
 import { ArrowUpRight } from './icons';
 import type { Locale } from '@/lib/types';
 
@@ -26,20 +27,12 @@ export default function EditorialSectors({
   const ar = locale === 'ar';
 
   return (
-    <div className="x-ed">
+    <div className="x-ed-wrap">
       {showIndex ? (
-        <ol className="x-ed-index" aria-label={ar ? 'فهرس القطاعات' : 'Sector index'}>
-          {items.map((item, index) => (
-            <li key={item.id}>
-              <a href={`#sector-${item.slug}`}>
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                {item.name}
-              </a>
-            </li>
-          ))}
-        </ol>
+        <SectorIndexNav items={items} label={ar ? 'فهرس القطاعات' : 'Sector index'} />
       ) : null}
 
+      <div className="x-ed">
       {items.map((item, index) => {
         const variant = index % 3;
         const flip = Math.floor(index / 3) % 2 === 1;
@@ -83,17 +76,23 @@ export default function EditorialSectors({
               {item.tagline ? <p className="x-ed-tag">{item.tagline}</p> : null}
               {item.summary ? <p className="x-ed-sum">{item.summary}</p> : null}
 
-              <div className="x-ed-meta">
-                <div>
-                  <b>{item.services}</b>
-                  <small>{ar ? 'خدمة متاحة' : 'Services'}</small>
+              {item.services > 0 || item.companies > 0 ? (
+                <div className="x-ed-meta">
+                  {item.services > 0 ? (
+                    <div>
+                      <b>{item.services}</b>
+                      <small>{ar ? 'خدمة متاحة' : 'Services'}</small>
+                    </div>
+                  ) : null}
+                  {item.services > 0 && item.companies > 0 ? <span aria-hidden="true" /> : null}
+                  {item.companies > 0 ? (
+                    <div>
+                      <b>{item.companies}</b>
+                      <small>{ar ? 'شركة تابعة' : 'Companies'}</small>
+                    </div>
+                  ) : null}
                 </div>
-                <span aria-hidden="true" />
-                <div>
-                  <b>{item.companies}</b>
-                  <small>{ar ? 'شركة تابعة' : 'Companies'}</small>
-                </div>
-              </div>
+              ) : null}
 
               <Link href={`/${locale}/sectors/${item.slug}`} className="x-ed-cta">
                 {ar ? 'اكتشف القطاع' : 'Explore the sector'}
@@ -103,6 +102,7 @@ export default function EditorialSectors({
           </article>
         );
       })}
+      </div>
     </div>
   );
 }

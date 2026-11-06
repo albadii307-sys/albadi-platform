@@ -54,6 +54,10 @@ export async function getCompanies(): Promise<Company[]> {
   });
 }
 
+export async function getCompany(slug: string): Promise<Company | null> {
+  return getOne<Company>('companies', { slug, is_published: true });
+}
+
 export async function getAllNews(category?: NewsItem['category']): Promise<NewsItem[]> {
   return list<NewsItem>('news', {
     where: { is_published: true, ...(category ? { category } : {}) },
