@@ -169,6 +169,7 @@ export const siteDefaults = {
   social_facebook: '',
   social_youtube: '',
   social_whatsapp: '',
+  hero_video_url: '',
 } as const;
 
 export type SiteSettings = {
@@ -185,6 +186,7 @@ export type SiteSettings = {
   hoursAr: string;
   hoursEn: string;
   social: Record<SocialKey, string>;
+  heroVideo: string;
   gallery: Record<string, string[]>;
   why: WhyCard[];
   timeline: Milestone[];

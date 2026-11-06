@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Counter } from '@/components/x-motion';
-import SectorsExplorer from '@/components/sectors-explorer';
+import EditorialSectors from '@/components/editorial-sectors';
 import { ArrowLeft, ArrowRight, Building } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { companiesCount, sectorsCount } from '@/lib/plural';
 import { getCompanies, getSectors, getServices } from '@/lib/queries';
+import { SECTOR_MEDIA } from '@/lib/sector-media';
+import { getSiteSettings } from '@/lib/site-settings.server';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -27,7 +29,12 @@ export default async function SectorsPage({ params }: { params: Promise<{ locale
   const ar = locale === 'ar';
   const Arrow = ar ? ArrowLeft : ArrowRight;
 
-  const [sectors, services, companies] = await Promise.all([getSectors(), getServices(), getCompanies()]);
+  const [sectors, services, companies, settings] = await Promise.all([
+    getSectors(),
+    getServices(),
+    getCompanies(),
+    getSiteSettings(),
+  ]);
 
   const serviceMap = new Map<string, string[]>();
   for (const service of services) {
@@ -49,10 +56,16 @@ export default async function SectorsPage({ params }: { params: Promise<{ locale
       id: sector.id,
       slug: sector.slug,
       name: pick(sector, 'name', locale),
-      tagline: pick(sector, 'tagline', locale) || pick(sector, 'summary', locale),
-      services: names,
-      serviceCount: names.length,
-      companyCount: companyMap.get(sector.id) ?? 0,
+      tagline: pick(sector, 'tagline', locale),
+      summary: pick(sector, 'summary', locale),
+      services: names.length,
+      companies: companyMap.get(sector.id) ?? 0,
+      image:
+        settings.gallery[sector.id]?.[0] ??
+        SECTOR_MEDIA[sector.slug]?.image ??
+        sector.hero_url ??
+        '/media/projects/p4.webp',
+      logo: SECTOR_MEDIA[sector.slug]?.logo ?? null,
     };
   });
 
@@ -108,12 +121,12 @@ export default async function SectorsPage({ params }: { params: Promise<{ locale
 
       <section className="x-explorer-section">
         <div className="container">
-          <SectorsExplorer items={items} locale={locale} />
+          <EditorialSectors items={items} locale={locale} showIndex />
 
           <div className="x-ex-foot">
             <span className="x-hint">
               <i aria-hidden="true" />
-              {ar ? 'مرّر على أي قطاع لعرض خدماته' : 'Hover any sector to reveal its services'}
+              {ar ? 'كل قطاع صفحة مستقلة بأعماله وخدماته' : 'Every sector has its own page, work and services'}
             </span>
             <Link href={`/${locale}/request`} className="x-link light">
               {t.nav.request} <Arrow size={16} />

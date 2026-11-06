@@ -103,6 +103,29 @@ export default async function SettingsPage({
 
           <div className="panel">
             <div className="panel-head">
+              <h2>فيديو الواجهة الرئيسية</h2>
+              <span className="row-sub">اختياري — عند تركه فارغاً يبقى عرض الصور المتحرك في أعلى الرئيسية</span>
+            </div>
+            <div className="panel-body">
+              <div className="a-field">
+                <label htmlFor="hero_video_url">رابط الفيديو (MP4 أو WebM)</label>
+                <input
+                  id="hero_video_url"
+                  name="hero_video_url"
+                  defaultValue={settings.heroVideo}
+                  dir="ltr"
+                  placeholder="https://…/hero.mp4 أو /media/hero/hero.mp4"
+                />
+                <span className="a-help">
+                  مسار داخلي أو رابط مباشر. يُشغَّل تلقائياً بدون صوت مع تكرار، ويُستبدل بعرض الصور لمن يفعّل تقليل
+                  الحركة في جهازه.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head">
               <h2>الخطوط وتنسيق النص</h2>
               <span className="row-sub">تُطبَّق على الموقع العام بالكامل — أما محتوى الصفحات فيُنسَّق من محرّر النص</span>
             </div>

@@ -7,6 +7,7 @@ import { isLocale, getDict, locales, type Locale } from '@/lib/i18n';
 import { getCompanies, getSectors, getServices } from '@/lib/queries';
 import { getSiteSettings } from '@/lib/site-settings.server';
 import { fontOptions } from '@/lib/site-settings';
+import { jsonLd, siteUrl } from '@/lib/jsonld';
 
 export const revalidate = 60;
 
@@ -57,8 +58,52 @@ export default async function LocaleLayout({
   const headingStack = fontOptions.find((font) => font.key === typo.headingFont)?.stack ?? fontOptions[0].stack;
   const typeCss = `:root{--site-body-font:${bodyStack};--site-heading-font:${headingStack};--site-line-height:${typo.lineHeight};--site-letter-spacing:${typo.letterSpacing}px;--site-heading-weight:${typo.headingWeight};font-size:${typo.baseSize}px}`;
 
+  const origin = siteUrl();
+  const orgLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${origin}/#organization`,
+        name: settings.brandNameAr,
+        alternateName: settings.brandNameEn,
+        url: `${origin}/${locale}`,
+        logo: `${origin}${settings.logo}`,
+        description: settings.taglineAr,
+        foundingDate: '1976',
+        telephone: settings.phone,
+        faxNumber: settings.fax,
+        email: settings.email,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: locale === 'ar' ? 'ولاية صحم' : 'Saham',
+          addressRegion: locale === 'ar' ? 'شمال الباطنة' : 'Al Batinah North',
+          addressCountry: 'OM',
+        },
+        contactPoint: {
+          '@type': 'ContactPoint',
+          contactType: 'sales',
+          telephone: settings.phone,
+          email: settings.email,
+          availableLanguage: ['ar', 'en'],
+        },
+        sameAs: Object.values(settings.social).filter(Boolean),
+      },
+      {
+        '@type': 'WebSite',
+        '@id': `${origin}/#website`,
+        url: `${origin}/${locale}`,
+        name: settings.brandNameAr,
+        alternateName: settings.brandNameEn,
+        inLanguage: ['ar', 'en'],
+        publisher: { '@id': `${origin}/#organization` },
+      },
+    ],
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(orgLd)} />
       <style dangerouslySetInnerHTML={{ __html: typeCss }} />
       <ScrollFX />
       <SiteHeader locale={locale} sectors={sectors} companies={companies} services={services} settings={settings} />

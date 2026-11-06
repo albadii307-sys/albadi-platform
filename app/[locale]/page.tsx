@@ -6,7 +6,7 @@ import { getCompanies, getNews, getProjects, getSectors, getServices, getTeam } 
 import { companiesCount, enginesCount, sectorsCount } from '@/lib/plural';
 import { NewsCard } from '@/components/cards';
 import HeroMedia from '@/components/hero-media';
-import SectorShowcase from '@/components/sector-showcase';
+import EditorialSectors from '@/components/editorial-sectors';
 import { CompanyCard } from '@/components/company-grid';
 import { TeamCard } from '@/components/team-grid';
 import NewsRail, { Rail } from '@/components/news-rail';
@@ -17,19 +17,8 @@ import WhySection from '@/components/why-section';
 import { Counter, LiveClock } from '@/components/x-motion';
 import { getSiteSettings } from '@/lib/site-settings.server';
 import { siteAddress, siteHours, telHref } from '@/lib/site-settings';
+import { SECTOR_MEDIA } from '@/lib/sector-media';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Check, Clock, Mail, Pin, Phone } from '@/components/icons';
-
-const SECTOR_MEDIA: Record<string, { image: string; logo?: string }> = {
-  contracting: { image: '/media/projects/p5.webp', logo: '/media/companies/co-contracting.webp' },
-  'real-estate-development': { image: '/media/projects/p4.webp' },
-  logistics: { image: '/media/projects/p7.webp' },
-  'trade-services': { image: '/media/projects/p9.webp', logo: '/media/companies/co-trade.webp' },
-  'hospitality-tourism': { image: '/media/csr/c2.webp', logo: '/media/companies/co-hotel.webp' },
-  education: { image: '/media/projects/p2.webp', logo: '/media/companies/co-school.webp' },
-  'energy-mining': { image: '/media/projects/p8.webp', logo: '/media/companies/co-mining.webp' },
-  investment: { image: '/media/projects/p3.webp' },
-  industry: { image: '/media/projects/p1.webp', logo: '/media/companies/co-aluminium.webp' },
-};
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -66,15 +55,29 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     serviceCount.set(service.sector_id, (serviceCount.get(service.sector_id) ?? 0) + 1);
   }
 
+  const companyCount = new Map<string, number>();
+  for (const company of companies) {
+    if (!company.sector_id) continue;
+    companyCount.set(company.sector_id, (companyCount.get(company.sector_id) ?? 0) + 1);
+  }
+
   const showcase = sectors.map((sector) => ({
     id: sector.id,
     slug: sector.slug,
     name: pick(sector, 'name', locale),
-    tagline: pick(sector, 'tagline', locale) || pick(sector, 'summary', locale),
+    tagline: pick(sector, 'tagline', locale),
+    summary: pick(sector, 'summary', locale),
     services: serviceCount.get(sector.id) ?? 0,
-    image: SECTOR_MEDIA[sector.slug]?.image ?? '/media/projects/p4.webp',
+    companies: companyCount.get(sector.id) ?? 0,
+    image:
+      settings.gallery[sector.id]?.[0] ??
+      SECTOR_MEDIA[sector.slug]?.image ??
+      sector.hero_url ??
+      '/media/projects/p4.webp',
     logo: SECTOR_MEDIA[sector.slug]?.logo ?? null,
   }));
+
+  const homeSectors = showcase.slice(0, 6);
 
   const companyItems = companies.map((company) => {
     const sector = sectors.find((item) => item.id === company.sector_id);
@@ -136,7 +139,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   return (
     <div className="x-home">
       <section className="x-hero">
-        <HeroMedia slides={heroSlides} />
+        <HeroMedia slides={heroSlides} video={settings.heroVideo || undefined} />
         <div className="x-hero-fx" aria-hidden="true">
           <span className="x-hero-glow" />
           <span className="x-hero-grid" />
@@ -339,7 +342,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <p>{t.home.sectorsText}</p>
           </div>
 
-          <SectorShowcase items={showcase} locale={locale} />
+          <EditorialSectors items={homeSectors} locale={locale} />
 
           <div className="x-sec-foot">
             <span className="x-hint">

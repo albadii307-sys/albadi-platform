@@ -183,6 +183,7 @@ export async function saveSiteContent(formData: FormData) {
     'social_facebook',
     'social_youtube',
     'social_whatsapp',
+    'hero_video_url',
     'type_body_font',
     'type_heading_font',
     'type_base_size',

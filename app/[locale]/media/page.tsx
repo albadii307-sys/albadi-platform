@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import PageHero from '@/components/page-hero';
+import MediaGallery from '@/components/media-gallery';
 import { getDict, isLocale, type Locale } from '@/lib/i18n';
 import { getMedia } from '@/lib/queries';
-import { Download, FileText, ImageIcon } from '@/components/icons';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -11,6 +10,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = getDict(l);
   return {
     title: t.nav.media,
+    description:
+      l === 'ar' ? 'مكتبة صور المجموعة والكتيبات والتغطيات الإعلامية.' : 'Group photography, brochures and press materials.',
     alternates: { canonical: `/${l}/media`, languages: { ar: '/ar/media', en: '/en/media' } },
   };
 }
@@ -19,60 +20,63 @@ export default async function MediaPage({ params }: { params: Promise<{ locale: 
   const { locale: raw } = await params;
   if (!isLocale(raw)) notFound();
   const locale = raw;
+  const ar = locale === 'ar';
   const t = getDict(locale);
   const media = await getMedia();
-  const images = media.filter((item) => item.kind === 'image');
-  const files = media.filter((item) => item.kind === 'pdf');
+
+  const items = media.map((item) => ({
+    id: item.id,
+    title: item.title,
+    url: item.url,
+    kind: item.kind,
+    year: item.created_at ? new Date(item.created_at).getFullYear() : null,
+  }));
+
+  const photos = items.filter((item) => item.kind === 'image').length;
+  const files = items.filter((item) => item.kind === 'pdf').length;
 
   return (
     <>
-      <PageHero
-        locale={locale}
-        title={t.nav.media}
-        subtitle={locale === 'ar' ? 'كتيبات المجموعة والتغطيات الإعلامية.' : 'Group brochures and press coverage.'}
-        crumbs={[{ label: t.nav.media }]}
-      />
-      <section className="section">
-        <div className="container">
-          <h2 className="section-title" style={{ fontSize: '1.4rem', marginBottom: 20 }}>
-            {locale === 'ar' ? 'الكتيبات والملفات' : 'Brochures and files'}
-          </h2>
-          <div className="services-grid" style={{ marginBottom: 56 }}>
-            {files.map((item) => (
-              <a className="service-card" key={item.id} href={item.url} target="_blank" rel="noopener noreferrer">
-                <span className="service-num">
-                  <FileText size={18} /> PDF
-                </span>
-                <h3>{item.title}</h3>
-                <span className="link-arrow" style={{ marginTop: 'auto' }}>
-                  <Download size={15} /> {locale === 'ar' ? 'تحميل' : 'Download'}
-                </span>
-              </a>
-            ))}
+      <section className="x-nw-hero">
+        <div className="x-hero-fx" aria-hidden="true">
+          <span className="x-hero-glow" />
+          <span className="x-hero-grid" />
+        </div>
+        <div className="container x-nw-hero-inner">
+          <span className="x-eyebrow light">
+            <i aria-hidden="true" />
+            {ar ? 'المكتبة الإعلامية' : 'Media library'}
+          </span>
+          <h1 className="x-nw-title">{t.nav.media}</h1>
+          <p className="x-nw-sub">
+            {ar
+              ? 'صور المجموعة ومشاريعها، والكتيبات الرسمية، والتغطيات الإعلامية — في مكان واحد.'
+              : 'Group and project photography, official brochures and press coverage — in one place.'}
+          </p>
+          <div className="x-md-stats">
+            <div>
+              <b>{photos}</b>
+              <small>{ar ? 'صورة' : 'Photos'}</small>
+            </div>
+            <div>
+              <b>{files}</b>
+              <small>{ar ? 'ملف PDF' : 'PDF files'}</small>
+            </div>
+            <div>
+              <b>{items.length}</b>
+              <small>{ar ? 'عنصر في المكتبة' : 'Library items'}</small>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <h2 className="section-title" style={{ fontSize: '1.4rem', marginBottom: 20 }}>
-            {locale === 'ar' ? 'التغطيات الإعلامية' : 'Press coverage'}
-          </h2>
-          <div className="media-grid">
-            {images.map((item) => (
-              <a
-                className="media-card"
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img src={item.url} alt="" loading="lazy" />
-                <div className="media-card-body">
-                  <h3>{item.title}</h3>
-                  <span className="media-kind">
-                    <ImageIcon size={13} /> {locale === 'ar' ? 'تغطية' : 'Coverage'}
-                  </span>
-                </div>
-              </a>
-            ))}
-          </div>
+      <section className="x-md-wrap">
+        <div className="container">
+          {items.length ? (
+            <MediaGallery items={items} locale={locale} />
+          ) : (
+            <p className="x-pf-empty">{t.common.empty}</p>
+          )}
         </div>
       </section>
     </>

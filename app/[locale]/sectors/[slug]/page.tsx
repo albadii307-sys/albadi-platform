@@ -7,6 +7,7 @@ import SectorGallery from '@/components/sector-gallery';
 import { Counter } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Check, Phone, Pin } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
+import { jsonLd, siteUrl } from '@/lib/jsonld';
 import { getCompanies, getProjects, getSector, getSectors, getServices } from '@/lib/queries';
 import { telHref } from '@/lib/site-settings';
 import { getSiteSettings } from '@/lib/site-settings.server';
@@ -69,6 +70,32 @@ export default async function SectorPage({ params }: Params) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLd({
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                { '@type': 'ListItem', position: 1, name: t.nav.home, item: `${siteUrl()}/${locale}` },
+                { '@type': 'ListItem', position: 2, name: t.nav.sectors, item: `${siteUrl()}/${locale}/sectors` },
+                { '@type': 'ListItem', position: 3, name, item: `${siteUrl()}/${locale}/sectors/${sector.slug}` },
+              ],
+            },
+            {
+              '@type': 'Service',
+              name,
+              description: pick(sector, 'summary', locale),
+              url: `${siteUrl()}/${locale}/sectors/${sector.slug}`,
+              image: sector.hero_url ? `${siteUrl()}${sector.hero_url}` : undefined,
+              provider: { '@id': `${siteUrl()}/#organization` },
+              areaServed: { '@type': 'Country', name: ar ? 'سلطنة عُمان' : 'Oman' },
+            },
+          ],
+        })}
+      />
+
       <section className="x-sh">
         <div className="x-hero-fx" aria-hidden="true">
           <span className="x-hero-glow" />
