@@ -2,11 +2,14 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { NewsCard, formatDate } from '@/components/cards';
+import PhotoGallery from '@/components/photo-gallery';
 import ShareActions from '@/components/share-actions';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Calendar } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { jsonLd, siteUrl } from '@/lib/jsonld';
 import { getAllNews, getNewsItem } from '@/lib/queries';
+import { usableGallery } from '@/lib/sector-media';
+import { getSiteSettings } from '@/lib/site-settings.server';
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
 
@@ -42,6 +45,12 @@ export default async function NewsDetailPage({ params }: Params) {
   const t = getDict(locale);
   const item = await getNewsItem(slug);
   if (!item) notFound();
+
+  const settings = await getSiteSettings();
+  const gallery = usableGallery(settings.itemGallery[`news:${item.id}`]);
+  const workImages = Array.from(
+    new Set([item.cover_url, ...gallery].filter((url): url is string => Boolean(url)))
+  );
 
   const all = await getAllNews(item.category);
   const latest = (await getAllNews()).filter((entry) => entry.id !== item.id).slice(0, 4);
@@ -87,7 +96,9 @@ export default async function NewsDetailPage({ params }: Params) {
           <span className="x-hero-rings r1" />
           <span className="x-hero-rings r2" />
         </div>
-        {item.cover_url ? <img className="x-sh-img" src={item.cover_url} alt="" data-parallax="0.04" /> : null}
+        {item.cover_url ? (
+          <img className="x-sh-img" src={item.cover_url} alt="" data-parallax="0.04" fetchPriority="high" decoding="async" />
+        ) : null}
         <span className="x-sh-veil" aria-hidden="true" />
 
         <div className="container x-sh-inner">
@@ -125,6 +136,31 @@ export default async function NewsDetailPage({ params }: Params) {
             ) : (
               <p className="x-pd-empty reveal">{excerpt}</p>
             )}
+
+            {workImages.length > 1 ? (
+              <section className="x-sector-block">
+                <div className="x-block-head reveal">
+                  <div>
+                    <span className="x-eyebrow">
+                      <i aria-hidden="true" />
+                      {ar ? 'صور الخبر' : 'News gallery'}
+                    </span>
+                    <h2 className="x-h2">
+                      {ar ? 'لقطات من' : 'Scenes from'}
+                      <br />
+                      <em>{ar ? 'هذا الخبر.' : 'this story.'}</em>
+                    </h2>
+                  </div>
+                  <span className="x-block-count">{workImages.length}</span>
+                </div>
+                <PhotoGallery
+                  images={workImages}
+                  name={title}
+                  locale={locale}
+                  countLabel={ar ? 'صورة' : 'Photo'}
+                />
+              </section>
+            ) : null}
 
             {item.external_url ? (
               <div className="x-nd-source reveal">

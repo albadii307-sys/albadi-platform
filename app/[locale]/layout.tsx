@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: t.seo.homeDesc,
       locale: locale === 'ar' ? 'ar_OM' : 'en_OM',
       type: 'website',
+      images: [{ url: '/media/hero/hero-1.webp', alt: t.seo.homeTitle }],
     },
   };
 }

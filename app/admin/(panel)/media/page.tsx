@@ -2,6 +2,7 @@ import { getMedia } from '@/lib/queries';
 import { uploadMedia, deleteCollectionItem } from '@/app/admin/actions';
 import { Plus } from '@/components/icons';
 import MediaLibrary, { type MediaRow } from '@/components/admin/media-library';
+import UploadInput from '@/components/admin/upload-input';
 
 const formatDate = (value?: string) =>
   value
@@ -32,7 +33,7 @@ export default async function AdminMediaPage() {
         <div className="panel">
           <div className="panel-head">
             <h2>رفع ملف جديد</h2>
-            <span className="row-sub">صور أو PDF حتى 8MB</span>
+            <span className="row-sub">صور أو PDF حتى 3.5MB</span>
           </div>
           <div className="panel-body">
             <form
@@ -46,8 +47,8 @@ export default async function AdminMediaPage() {
                   <input id="title" name="title" placeholder="مثال: كتيب المجموعة 2026" />
                 </div>
                 <div className="a-field">
-                  <label htmlFor="file">الملف (صورة أو PDF، حتى 8MB)</label>
-                  <input id="file" name="file" type="file" accept="image/*,.pdf" required />
+                  <label htmlFor="file">الملف (صورة أو PDF، حتى 3.5MB)</label>
+                  <UploadInput id="file" name="file" accept="image/*,.pdf" required />
                 </div>
               </div>
               <button type="submit" className="a-btn primary" style={{ alignSelf: 'end' }}>

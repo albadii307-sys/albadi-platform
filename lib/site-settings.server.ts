@@ -62,6 +62,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     why: parseJson(map.get('why_cards'), defaultWhy),
     timeline: parseJson(map.get('timeline'), defaultTimeline),
     gallery: parseMap<Record<string, string[]>>(map.get('sector_gallery'), {}),
+    itemGallery: parseMap<Record<string, string[]>>(map.get('item_gallery'), {}),
     heroVideo: map.get('hero_video_url')?.trim() ?? '',
     typography,
   };

@@ -4,6 +4,7 @@ import { getSiteSettings } from '@/lib/site-settings.server';
 import { Award, Check, Clock, ImageIcon, Upload, X } from '@/components/icons';
 import { saveSiteContent } from '@/app/admin/actions';
 import SubmitButton from '@/components/admin/submit-button';
+import UploadInput from '@/components/admin/upload-input';
 import { fontOptions } from '@/lib/site-settings';
 
 const socialFields = [
@@ -90,8 +91,13 @@ export default async function SettingsPage({
                   </div>
                   <div className="a-field">
                     <label htmlFor="logo_file">أو ارفع شعاراً جديداً</label>
-                    <input id="logo_file" name="logo_file" type="file" accept="image/png,image/svg+xml,image/webp,image/jpeg" />
-                    <span className="a-help">PNG أو SVG أو WebP — بحد أقصى 8 ميجابايت. يُستبدل الرابط تلقائياً بعد الرفع.</span>
+                    <UploadInput
+                      id="logo_file"
+                      name="logo_file"
+                      accept="image/png,image/svg+xml,image/webp,image/jpeg"
+                      types={['image/png', 'image/svg+xml', 'image/webp', 'image/jpeg']}
+                    />
+                    <span className="a-help">PNG أو SVG أو WebP — تُضغط الصور الكبيرة تلقائياً قبل الرفع.</span>
                   </div>
                 </div>
               </div>
@@ -308,8 +314,8 @@ export default async function SettingsPage({
                 </Link>
                 <Link href="/admin/galleries" className="a-linkcard">
                   <ImageIcon size={20} />
-                  <b>صور أعمال القطاعات</b>
-                  <span>أضف عدة صور لكل قطاع</span>
+                  <b>معارض الصور</b>
+                  <span>عدة صور لكل قطاع ومشروع وخبر</span>
                 </Link>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getAllNews, getAllProjects, getCompanies, getSectors } from '@/lib/queries';
 import { locales } from '@/lib/i18n';
+import { siteUrl } from '@/lib/jsonld';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,7 +36,7 @@ function entry(site: string, path: string, lastModified?: string): MetadataRoute
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.albadigroup.com').replace(/\/$/, '');
+  const site = siteUrl();
   const [sectors, companies, projects, news] = await Promise.all([
     getSectors(),
     getCompanies(),

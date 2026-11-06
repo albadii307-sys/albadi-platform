@@ -725,7 +725,15 @@
   border-radius: 10px;
 }
 
-.a-seg button {
+.a-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.a-seg button,
+.a-seg a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -735,10 +743,12 @@
   border-radius: 7px;
   font-size: 0.8rem;
   color: var(--muted);
+  text-decoration: none;
   transition: 0.15s;
 }
 
-.a-seg button span {
+.a-seg button span,
+.a-seg a span {
   padding: 1px 6px;
   border-radius: 999px;
   background: #eef2ef;
@@ -747,12 +757,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-.a-seg button.is-on {
+.a-seg button.is-on,
+.a-seg a.is-on {
   background: var(--green-900);
   color: #fff;
 }
 
-.a-seg button.is-on span {
+.a-seg button.is-on span,
+.a-seg a.is-on span {
   background: rgba(255, 255, 255, 0.18);
   color: #fff;
 }

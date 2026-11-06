@@ -7526,3 +7526,90 @@ body.is-scrolled .site-header .brand img,
     --header-h: 61px;
   }
 }
+
+/* ── sector layout variants ───────────────────────────────────
+   Each sector alternates between three editorial compositions so
+   the ten detail pages do not read as one repeated template. */
+.x-sh.x-sv-b {
+  min-height: clamp(500px, 68vh, 680px);
+}
+
+.x-sh.x-sv-c .x-sh-title {
+  max-width: 28ch;
+}
+
+/* B — stacked banner with the overview copy in a bordered sheet */
+.x-sv-b .x-sector-intro {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: stretch;
+}
+
+.x-sv-b .x-sector-intro-media {
+  min-height: clamp(300px, 38vw, 460px);
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.x-sv-b .x-sector-intro-copy {
+  padding: clamp(22px, 3.4vw, 40px);
+  margin-top: -1px;
+  border: 1px solid var(--x-line);
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+  border-end-start-radius: 20px;
+  border-end-end-radius: 20px;
+  background: #fff;
+}
+
+.x-sv-b .x-sector-intro-copy .x-h2 {
+  margin-top: 6px;
+}
+
+/* C — copy leads, media follows, and the aside becomes a full-width band */
+.x-sv-c .x-sector-intro {
+  grid-template-columns: 1.04fr 0.96fr;
+}
+
+.x-sv-c .x-sector-intro-copy {
+  order: 1;
+}
+
+.x-sv-c .x-sector-intro-media {
+  order: 2;
+  min-height: 420px;
+}
+
+.x-sv-c .x-sector-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.x-sv-c .x-sector-aside {
+  margin-top: 10px;
+}
+
+.x-sv-c .x-side-sticky {
+  position: static;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 18px;
+}
+
+@media (max-width: 940px) {
+  .x-sv-c .x-sector-intro {
+    grid-template-columns: 1fr;
+  }
+
+  .x-sv-c .x-sector-intro-copy,
+  .x-sv-c .x-sector-intro-media {
+    order: 0;
+  }
+
+  .x-sv-c .x-sector-intro-media {
+    min-height: 320px;
+  }
+
+  .x-sv-c .x-side-sticky {
+    grid-template-columns: 1fr;
+  }
+}

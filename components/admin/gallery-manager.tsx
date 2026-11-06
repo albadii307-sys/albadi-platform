@@ -2,23 +2,31 @@
 
 import { useState } from 'react';
 import { Check, ImageIcon, Plus, Trash, X } from '@/components/icons';
+import { compressAll, replaceInputFiles } from '@/lib/compress-image';
 import SubmitButton from './submit-button';
 
-type SectorRow = { id: string; name: string; slug: string; hero: string | null };
+type GalleryItem = { id: string; name: string; slug: string; hero: string | null };
 
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = 3.5 * 1024 * 1024;
+const MAX_TOTAL = 3.5 * 1024 * 1024;
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
 
 export default function GalleryManager({
-  sectors,
+  items,
   gallery,
   action,
   saved,
+  fieldName = 'sector_id',
+  keyPrefix = '',
+  heading = 'صور أعمال',
 }: {
-  sectors: SectorRow[];
+  items: GalleryItem[];
   gallery: Record<string, string[]>;
   action: (formData: FormData) => Promise<void>;
   saved: boolean;
+  fieldName?: string;
+  keyPrefix?: string;
+  heading?: string;
 }) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [images, setImages] = useState<string[]>([]);
@@ -27,11 +35,13 @@ export default function GalleryManager({
   const [pickError, setPickError] = useState('');
   const [dirty, setDirty] = useState(false);
 
-  const sector = sectors.find((item) => item.id === openId) ?? null;
+  const keyFor = (id: string) => `${keyPrefix}${id}`;
+  const photosOf = (id: string) => gallery[keyFor(id)] ?? [];
+  const activeItem = items.find((item) => item.id === openId) ?? null;
 
   const start = (id: string) => {
     setOpenId(id);
-    setImages(gallery[id] ?? []);
+    setImages(photosOf(id));
     setUrl('');
     setPicked([]);
     setPickError('');
@@ -48,19 +58,19 @@ export default function GalleryManager({
   return (
     <>
       <div className="a-toolbar">
-        <span className="a-count">{sectors.length} قطاع</span>
+        <span className="a-count">{items.length} عنصر</span>
         {saved && !dirty ? (
           <span className="a-saved">
             <Check size={14} /> تم الحفظ
           </span>
         ) : (
-          <span className="row-sub">أضف عدة صور لكل قطاع — تظهر كمعرض أعمال في صفحة القطاع.</span>
+          <span className="row-sub">أضف عدة صور لكل عنصر — تظهر كمعرض أعمال في صفحته.</span>
         )}
       </div>
 
       <div className="a-cardgrid">
-        {sectors.map((item) => {
-          const photos = gallery[item.id] ?? [];
+        {items.map((item) => {
+          const photos = photosOf(item.id);
           const cover = photos[0] ?? item.hero;
           return (
             <article className="a-card" key={item.id}>
@@ -93,14 +103,14 @@ export default function GalleryManager({
           <div className="a-modal-card wide">
             <form action={action} className="a-modal-form">
               <div className="a-modal-head">
-                <h2 id="gallery-modal-title">صور أعمال: {sector?.name}</h2>
+                <h2 id="gallery-modal-title">{heading}: {activeItem?.name}</h2>
                 <button type="button" className="a-modal-close" onClick={close} aria-label="إغلاق">
                   <X size={18} />
                 </button>
               </div>
 
               <div className="a-modal-body">
-                <input type="hidden" name="sector_id" value={openId} />
+                <input type="hidden" name={fieldName} value={keyFor(openId)} />
                 <input type="hidden" name="images" value={JSON.stringify(images)} />
 
                 <div className="a-gallery-grid">
@@ -132,15 +142,24 @@ export default function GalleryManager({
                       type="file"
                       accept={ACCEPTED.join(',')}
                       multiple
-                      onChange={(event) => {
-                        const files = Array.from(event.target.files ?? []);
-                        const valid = files.filter((file) => ACCEPTED.includes(file.type) && file.size <= MAX_BYTES);
-                        const skipped = files.length - valid.length;
-                        setPicked(valid);
+                      onChange={async (event) => {
+                        const input = event.currentTarget;
+                        const files = Array.from(input.files ?? []);
+                        const valid = files.filter((file) => ACCEPTED.includes(file.type));
+                        const compressed = await compressAll(valid);
+                        const total = compressed.reduce((sum, file) => sum + file.size, 0);
+                        if (compressed.some((file) => file.size > MAX_BYTES) || total > MAX_TOTAL) {
+                          setPicked([]);
+                          setPickError('الحجم الإجمالي كبير — أضف عدداً أقل من الصور أو صوراً أصغر.');
+                          input.value = '';
+                          setDirty(false);
+                          return;
+                        }
+                        replaceInputFiles(input, compressed);
+                        const skipped = files.length - compressed.length;
+                        setPicked(compressed);
                         setPickError(
-                          skipped
-                            ? `تم تجاهل ${skipped} ملفاً: الصيغة أو الحجم غير مدعوم (الحد 8 ميجابايت).`
-                            : ''
+                          skipped ? `تم تجاهل ${skipped} ملفاً: الصيغة غير مدعومة.` : ''
                         );
                         setDirty(files.length > 0);
                       }}

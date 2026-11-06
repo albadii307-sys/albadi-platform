@@ -267,3 +267,46 @@ export async function saveSectorGallery(formData: FormData) {
   revalidatePath('/admin/galleries');
   redirect('/admin/galleries?saved=1');
 }
+
+export async function saveItemGallery(formData: FormData) {
+  await requireSession();
+  const key = String(formData.get('gallery_key') ?? '').trim();
+  const match = /^(project|news|company):(.+)$/.exec(key);
+  if (!match) redirect('/admin/galleries');
+
+  let urls: string[] = [];
+  try {
+    const parsed = JSON.parse(String(formData.get('images') ?? '[]'));
+    if (Array.isArray(parsed)) {
+      urls = parsed.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+    }
+  } catch {
+    urls = [];
+  }
+
+  const folder = match[1] === 'news' ? 'news' : match[1] === 'company' ? 'companies' : 'projects';
+  for (const entry of formData.getAll('files')) {
+    if (!(entry instanceof File) || entry.size === 0) continue;
+    const uploaded = await saveUpload(entry, folder);
+    if (uploaded) urls.push(uploaded);
+  }
+
+  const existing = await getOne<Setting>('settings', { key: 'item_gallery' });
+  let gallery: Record<string, string[]> = {};
+  if (existing) {
+    try {
+      const parsed = JSON.parse(existing.value);
+      if (parsed && typeof parsed === 'object') gallery = parsed as Record<string, string[]>;
+    } catch {
+      gallery = {};
+    }
+  }
+
+  if (urls.length) gallery[key] = urls;
+  else delete gallery[key];
+
+  await setSetting('item_gallery', JSON.stringify(gallery));
+  revalidatePath('/', 'layout');
+  revalidatePath('/admin/galleries');
+  redirect(`/admin/galleries?type=${match[1] === 'news' ? 'news' : match[1] === 'company' ? 'companies' : 'projects'}&saved=1`);
+}

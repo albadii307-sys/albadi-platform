@@ -2,8 +2,9 @@
 
 import { useRef, useState } from 'react';
 import { ImageIcon } from '@/components/icons';
+import { compressImage, replaceInputFiles } from '@/lib/compress-image';
 
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = 3.5 * 1024 * 1024;
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
 
 export default function ImageInput({
@@ -55,21 +56,24 @@ export default function ImageInput({
             type="file"
             name={`${name}_file`}
             accept={ACCEPTED.join(',')}
-            onChange={(event) => {
-              const file = event.target.files?.[0];
+            onChange={async (event) => {
+              const input = event.currentTarget;
+              const file = input.files?.[0];
               if (!file) return;
               if (!ACCEPTED.includes(file.type)) {
                 setError('صيغة غير مدعومة — استخدم JPG أو PNG أو WebP أو SVG.');
-                event.target.value = '';
-                return;
-              }
-              if (file.size > MAX_BYTES) {
-                setError('حجم الملف أكبر من 8 ميجابايت — صغّره ثم أعد المحاولة.');
-                event.target.value = '';
+                input.value = '';
                 return;
               }
               setError('');
-              setPreview(URL.createObjectURL(file));
+              const prepared = await compressImage(file);
+              if (prepared.size > MAX_BYTES) {
+                setError('حجم الصورة كبير جداً حتى بعد الضغط — جرّب صورة أصغر.');
+                input.value = '';
+                return;
+              }
+              replaceInputFiles(input, [prepared]);
+              setPreview(URL.createObjectURL(prepared));
             }}
           />
         </div>

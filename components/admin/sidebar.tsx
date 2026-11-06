@@ -38,7 +38,7 @@ const items = [
 const contentItems = [
   { href: '/admin/content/why', label: 'لماذا مجموعة البادي', icon: Award },
   { href: '/admin/content/timeline', label: 'محطات من مسيرتنا', icon: Clock },
-  { href: '/admin/galleries', label: 'صور أعمال القطاعات', icon: ImageIcon },
+  { href: '/admin/galleries', label: 'معارض الصور', icon: ImageIcon },
 ];
 
 export default function AdminSidebar({ email, role, logo }: { email: string; role: string; logo: string }) {

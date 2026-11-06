@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { siteUrl } from '@/lib/jsonld';
 
 export default function robots(): MetadataRoute.Robots {
-  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.albadigroup.com').replace(/\/$/, '');
+  const site = siteUrl();
   return {
     rules: [{ userAgent: '*', allow: '/', disallow: ['/admin', '/admin/', '/api/'] }],
     sitemap: `${site}/sitemap.xml`,

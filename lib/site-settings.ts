@@ -188,6 +188,7 @@ export type SiteSettings = {
   social: Record<SocialKey, string>;
   heroVideo: string;
   gallery: Record<string, string[]>;
+  itemGallery: Record<string, string[]>;
   why: WhyCard[];
   timeline: Milestone[];
   typography: Typography;

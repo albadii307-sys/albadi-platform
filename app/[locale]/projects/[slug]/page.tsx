@@ -2,10 +2,12 @@ import type { Metadata } from 'next';
 import type { ReactElement } from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import PhotoGallery from '@/components/photo-gallery';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Calendar, Pin, Phone } from '@/components/icons';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { jsonLd, siteUrl } from '@/lib/jsonld';
 import { getProject, getProjects, getSectors } from '@/lib/queries';
+import { usableGallery } from '@/lib/sector-media';
 import { telHref } from '@/lib/site-settings';
 import { getSiteSettings } from '@/lib/site-settings.server';
 
@@ -57,6 +59,10 @@ export default async function ProjectPage({ params }: Params) {
   const name = pick(project, 'title', locale);
   const body = pick(project, 'body', locale);
   const lead = plain(body).slice(0, 190);
+  const gallery = usableGallery(settings.itemGallery[`project:${project.id}`]);
+  const workImages = Array.from(
+    new Set([project.cover_url, ...gallery].filter((url): url is string => Boolean(url)))
+  );
 
   const inSector = all.filter((item) => item.id !== project.id && item.sector_id === project.sector_id);
   const related = [...inSector];
@@ -159,7 +165,9 @@ export default async function ProjectPage({ params }: Params) {
           <span className="x-hero-rings r1" />
           <span className="x-hero-rings r2" />
         </div>
-        {project.cover_url ? <img className="x-sh-img" src={project.cover_url} alt="" data-parallax="0.04" /> : null}
+        {project.cover_url ? (
+          <img className="x-sh-img" src={project.cover_url} alt="" data-parallax="0.04" fetchPriority="high" decoding="async" />
+        ) : null}
         <span className="x-sh-veil" aria-hidden="true" />
         {project.year ? (
           <span className="x-sh-ghost" aria-hidden="true">
@@ -231,6 +239,31 @@ export default async function ProjectPage({ params }: Params) {
                   : 'Project details are being added. Contact us to learn more about the scope of work.'}
               </p>
             )}
+
+            {workImages.length > 1 ? (
+              <section className="x-sector-block">
+                <div className="x-block-head reveal">
+                  <div>
+                    <span className="x-eyebrow">
+                      <i aria-hidden="true" />
+                      {ar ? 'صور المشروع' : 'Project gallery'}
+                    </span>
+                    <h2 className="x-h2">
+                      {ar ? 'لقطات من' : 'Scenes from'}
+                      <br />
+                      <em>{ar ? 'موقع العمل.' : 'the site.'}</em>
+                    </h2>
+                  </div>
+                  <span className="x-block-count">{workImages.length}</span>
+                </div>
+                <PhotoGallery
+                  images={workImages}
+                  name={name}
+                  locale={locale}
+                  countLabel={ar ? 'صورة' : 'Photo'}
+                />
+              </section>
+            ) : null}
 
             <div className="x-pd-actions reveal">
               <Link href={`/${locale}/request?sector=${project.sector_id ?? ''}`} className="x-btn x-btn-accent">

@@ -55,6 +55,7 @@ export default async function SectorPage({ params }: Params) {
   ]);
 
   const index = sectors.findIndex((item) => item.id === sector.id);
+  const variantClass = ['x-sv-a', 'x-sv-b', 'x-sv-c'][Math.max(index, 0) % 3];
   const prev = sectors[(index - 1 + sectors.length) % sectors.length];
   const next = sectors[(index + 1) % sectors.length];
   const related = projects
@@ -106,7 +107,7 @@ export default async function SectorPage({ params }: Params) {
         })}
       />
 
-      <section className="x-sh">
+      <section className={`x-sh ${variantClass}`}>
         <div className="x-hero-fx" aria-hidden="true">
           <span className="x-hero-glow" />
           <span className="x-hero-grid" />
@@ -114,7 +115,7 @@ export default async function SectorPage({ params }: Params) {
           <span className="x-hero-rings r2" />
         </div>
         {sector.hero_url ? (
-          <img className="x-sh-img" src={sector.hero_url} alt="" data-parallax="0.04" />
+          <img className="x-sh-img" src={sector.hero_url} alt="" data-parallax="0.04" fetchPriority="high" decoding="async" />
         ) : null}
         <span className="x-sh-veil" aria-hidden="true" />
         <span className="x-sh-ghost" aria-hidden="true">
@@ -161,7 +162,7 @@ export default async function SectorPage({ params }: Params) {
         </div>
       </section>
 
-      <section className="x-sector">
+      <section className={`x-sector ${variantClass}`}>
         <div className="container x-sector-grid">
           <div className="x-sector-main">
             <div className="x-sector-intro">

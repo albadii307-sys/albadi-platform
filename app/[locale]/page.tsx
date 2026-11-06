@@ -79,7 +79,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const homeSectors = showcase;
 
   const homeProjects = [...projects]
-    .sort((a, b) => (b.year ?? 0) - (a.year ?? 0) || a.sort_order - b.sort_order)
+    .sort(
+      (a, b) =>
+        Number(b.is_featured) - Number(a.is_featured) ||
+        (b.year ?? 0) - (a.year ?? 0) ||
+        a.sort_order - b.sort_order
+    )
     .slice(0, 3);
 
   const companyItems = companies.map((company) => {
@@ -125,6 +130,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const stats = [
     { value: yearsOfExperience, label: ar ? 'عاماً من الخبرة' : 'Years of experience' },
     { value: sectors.length, label: ar ? 'قطاعات تشغيلية' : 'Operating sectors' },
+    { value: projects.length, label: ar ? 'مشروعاً منفذاً' : 'Delivered projects' },
     { value: companies.length, label: ar ? 'شركة تابعة' : 'Group companies' },
   ];
 

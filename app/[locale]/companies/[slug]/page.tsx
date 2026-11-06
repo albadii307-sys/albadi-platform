@@ -92,10 +92,13 @@ export default async function CompanyPage({ params }: Params) {
     : [];
   const relatedProjects = sectorProjects.slice(0, 3);
 
+  const ownGallery = usableGallery(settings.itemGallery[`company:${company.id}`]);
   const curatedGallery = sector ? usableGallery(settings.gallery[sector.id]) : [];
-  const gallery = curatedGallery.length
-    ? curatedGallery
-    : Array.from(
+  const gallery = ownGallery.length
+    ? ownGallery
+    : curatedGallery.length
+      ? curatedGallery
+      : Array.from(
         new Set(
           sectorProjects
             .map((project) => project.cover_url)
@@ -181,7 +184,9 @@ export default async function CompanyPage({ params }: Params) {
           <span className="x-hero-rings r1" />
           <span className="x-hero-rings r2" />
         </div>
-        {cover ? <img className="x-sh-img" src={cover} alt="" data-parallax="0.04" /> : null}
+        {cover ? (
+          <img className="x-sh-img" src={cover} alt="" data-parallax="0.04" fetchPriority="high" decoding="async" />
+        ) : null}
         <span className="x-sh-veil" aria-hidden="true" />
 
         <div className="container x-sh-inner">
@@ -356,19 +361,19 @@ export default async function CompanyPage({ params }: Params) {
                   <div>
                     <span className="x-eyebrow">
                       <i aria-hidden="true" />
-                      {ar ? 'من أعمالنا' : 'Our work'}
+                      {ownGallery.length ? (ar ? 'صور الشركة' : 'Company gallery') : ar ? 'من أعمالنا' : 'Our work'}
                     </span>
                     <h2 className="x-h2">
                       {ar ? 'صور من' : 'Photographs from'}
                       <br />
-                      <em>{ar ? 'قطاع الشركة.' : 'the sector.'}</em>
+                      <em>{ownGallery.length ? (ar ? 'أعمال الشركة.' : 'the company.') : ar ? 'قطاع الشركة.' : 'the sector.'}</em>
                     </h2>
                   </div>
                   <span className="x-block-count">{gallery.length}</span>
                 </div>
                 <PhotoGallery
                   images={gallery}
-                  name={sector ? pick(sector, 'name', locale) : name}
+                  name={ownGallery.length ? name : sector ? pick(sector, 'name', locale) : name}
                   locale={locale}
                   countLabel={ar ? 'صورة' : 'Photo'}
                 />

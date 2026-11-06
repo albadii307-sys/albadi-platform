@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Collection } from '@/lib/collections';
 import { saveCollectionItem } from '@/app/admin/actions';
-import { ArrowLeft } from '@/components/icons';
+import { ArrowLeft, ArrowUpRight } from '@/components/icons';
 import ImageInput from './image-input';
 import RichEditor from './rich-editor';
 import SubmitButton from './submit-button';
@@ -27,14 +27,32 @@ export default function CollectionForm({
     return String(raw);
   };
 
+  const publicSection: string | undefined = {
+    sectors: 'sectors',
+    companies: 'companies',
+    projects: 'projects',
+    news: 'news',
+  }[collection.key];
+  const previewHref =
+    row && row.is_published && publicSection && row.slug
+      ? `/ar/${publicSection}/${String(row.slug)}`
+      : null;
+
   return (
     <form action={action} className="a-form">
       <div className="panel">
         <div className="panel-head">
           <h2>{row ? `تعديل: ${String(row[collection.titleField] ?? collection.singular)}` : `إضافة ${collection.singular}`}</h2>
-          <Link href={afterSave ?? `/admin/collections/${collection.key}`} className="a-btn">
-            <ArrowLeft size={15} /> رجوع
-          </Link>
+          <div className="a-head-actions">
+            {previewHref ? (
+              <a href={previewHref} target="_blank" rel="noreferrer" className="a-btn ghost small">
+                <ArrowUpRight size={14} /> عرض في الموقع
+              </a>
+            ) : null}
+            <Link href={afterSave ?? `/admin/collections/${collection.key}`} className="a-btn">
+              <ArrowLeft size={15} /> رجوع
+            </Link>
+          </div>
         </div>
         <div className="panel-body">
           <div className="a-grid">

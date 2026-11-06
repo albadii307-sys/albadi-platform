@@ -62,6 +62,18 @@ export const metadata: Metadata = {
   description:
     'مجموعة عُمانية متعددة الأنشطة تأسست عام 1976، تعمل في المقاولات والصناعة والتجارة والتعليم والضيافة.',
   icons: { icon: '/media/brand/favicon.png' },
+  openGraph: {
+    type: 'website',
+    siteName: 'مجموعة البادي للاستثمار القابضة',
+    images: [{ url: '/media/hero/hero-1.webp', alt: 'مجموعة البادي للاستثمار القابضة' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'مجموعة البادي للاستثمار القابضة',
+    description:
+      'مجموعة عُمانية متعددة الأنشطة تأسست عام 1976، تعمل في المقاولات والصناعة والتجارة والتعليم والضيافة.',
+    images: ['/media/hero/hero-1.webp'],
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
