@@ -5702,6 +5702,40 @@ body.is-scrolled .site-header .brand img,
   backdrop-filter: blur(4px);
 }
 
+.x-pgal-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 0 0 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(7, 37, 26, 0.18);
+  background: none;
+  color: var(--green-800);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s;
+}
+
+.x-pgal-all svg {
+  transition: transform 0.3s var(--x-ease);
+}
+
+.x-pgal-all:hover {
+  color: var(--x-accent);
+  border-color: var(--x-accent);
+}
+
+.x-pgal-all:hover svg {
+  transform: translateX(-4px);
+}
+
+[dir="ltr"] .x-pgal-all:hover svg {
+  transform: translateX(4px);
+}
+
 @media (max-width: 820px) {
   .x-pgal {
     grid-template-columns: repeat(3, minmax(0, 1fr));

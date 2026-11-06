@@ -36,8 +36,8 @@ export default function PhotoGallery({
     if (!active) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') close();
-      if (event.key === 'ArrowRight') step(1);
-      if (event.key === 'ArrowLeft') step(-1);
+      if (event.key === 'ArrowRight') step(ar ? -1 : 1);
+      if (event.key === 'ArrowLeft') step(ar ? 1 : -1);
     };
     document.addEventListener('keydown', onKey);
     const previous = document.body.style.overflow;
@@ -46,17 +46,20 @@ export default function PhotoGallery({
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = previous;
     };
-  }, [active, close, step]);
+  }, [active, ar, close, step]);
 
   const PrevIcon = ar ? ArrowRight : ArrowLeft;
   const NextIcon = ar ? ArrowLeft : ArrowRight;
 
   if (unique.length < 2) return null;
 
+  const tiles = unique.slice(0, 8);
+  const hasMore = unique.length > tiles.length;
+
   return (
     <div className="x-pgal-block">
       <div className="x-pgal">
-        {unique.slice(0, 9).map((src, index) => (
+        {tiles.map((src, index) => (
           <button
             key={`${src}-${index}`}
             type="button"
@@ -76,6 +79,13 @@ export default function PhotoGallery({
           </button>
         ))}
       </div>
+
+      {hasMore ? (
+        <button type="button" className="x-pgal-all" onClick={() => setOpenIndex(0)}>
+          {ar ? `عرض جميع الصور (${unique.length})` : `View all ${unique.length} photos`}
+          <NextIcon size={16} />
+        </button>
+      ) : null}
 
       {active ? (
         <div className="x-lb" role="dialog" aria-modal="true" aria-label={name} onClick={close}>
