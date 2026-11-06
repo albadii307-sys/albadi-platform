@@ -4,6 +4,7 @@ import { saveCollectionItem } from '@/app/admin/actions';
 import { ArrowLeft } from '@/components/icons';
 import ImageInput from './image-input';
 import RichEditor from './rich-editor';
+import SubmitButton from './submit-button';
 
 type Option = { id: string; label: string };
 
@@ -144,13 +145,11 @@ export default function CollectionForm({
         </div>
       </div>
 
-      <div className="form-bar" style={{ marginInline: -32, paddingInline: 32 }}>
+      <div className="form-bar">
         <Link href={afterSave ?? `/admin/collections/${collection.key}`} className="a-btn">
           إلغاء
         </Link>
-        <button type="submit" className="a-btn primary">
-          حفظ
-        </button>
+        <SubmitButton>حفظ</SubmitButton>
       </div>
     </form>
   );

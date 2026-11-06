@@ -370,6 +370,13 @@
   background: var(--green-800);
 }
 
+.a-btn:disabled,
+.a-btn[aria-busy='true'] {
+  opacity: 0.62;
+  cursor: progress;
+  pointer-events: none;
+}
+
 .a-btn.orange {
   background: var(--orange);
   border-color: var(--orange);
@@ -470,14 +477,20 @@
 .form-bar {
   position: sticky;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  z-index: 6;
+  background: #fff;
   border-top: 1px solid var(--line);
   padding: 14px 0;
   display: flex;
   gap: 10px;
   justify-content: flex-end;
   margin-top: 10px;
+}
+
+.a-modal-card .form-bar {
+  padding-inline: 20px;
+  margin-inline: 0;
+  border-radius: 0 0 18px 18px;
 }
 
 .empty-state {
@@ -2161,6 +2174,24 @@
   padding: 6px 12px;
 }
 
+.field-error {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #b42318;
+}
+
+.a-unsaved {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #8a4b12;
+  background: #fdf0e4;
+  border-radius: 999px;
+  padding: 6px 12px;
+}
+
 .a-card-body.has-icon {
   padding-top: 18px;
 }
@@ -2536,7 +2567,7 @@
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 1;
 }
 
 .tx-group {

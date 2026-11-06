@@ -3,6 +3,7 @@ import { isSupabaseConfigured } from '@/lib/db';
 import { getSiteSettings } from '@/lib/site-settings.server';
 import { Award, Check, Clock, ImageIcon, Upload, X } from '@/components/icons';
 import { saveSiteContent } from '@/app/admin/actions';
+import SubmitButton from '@/components/admin/submit-button';
 import { fontOptions } from '@/lib/site-settings';
 
 const socialFields = [
@@ -316,9 +317,9 @@ export default async function SettingsPage({
 
           <div className="a-savebar">
             <span className="row-sub">تُطبّق التغييرات على الموقع بمجرد الحفظ.</span>
-            <button type="submit" className="a-btn primary">
+            <SubmitButton pendingLabel="جارٍ حفظ الإعدادات…">
               <Upload size={15} /> حفظ كل الإعدادات
-            </button>
+            </SubmitButton>
           </div>
         </form>
 

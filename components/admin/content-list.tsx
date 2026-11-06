@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Award, Check, Compass, Layers, Leaf, Plus, Shield, Trash, Users, X } from '@/components/icons';
+import SubmitButton from './submit-button';
 
 type Row = Record<string, string>;
 
@@ -33,6 +34,7 @@ export default function ContentList({
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState<number | null>(null);
   const [draft, setDraft] = useState<Row>({});
+  const [dirty, setDirty] = useState(false);
 
   const empty: Row =
     kind === 'why'
@@ -56,10 +58,14 @@ export default function ContentList({
       if (index === null) return [...current, draft];
       return current.map((row, i) => (i === index ? draft : row));
     });
+    setDirty(true);
     setOpen(false);
   };
 
-  const drop = (position: number) => setItems((current) => current.filter((_, i) => i !== position));
+  const drop = (position: number) => {
+    setItems((current) => current.filter((_, i) => i !== position));
+    setDirty(true);
+  };
 
   const set = (key: string, value: string) => setDraft((current) => ({ ...current, [key]: value }));
 
@@ -102,16 +108,16 @@ export default function ContentList({
 
       <form action={action} className="a-savebar">
         <input type="hidden" name="rows" value={JSON.stringify(items)} />
-        {saved ? (
+        {dirty ? (
+          <span className="a-unsaved">تغييرات غير محفوظة — اضغط «حفظ التغييرات» لتطبيقها على الموقع.</span>
+        ) : saved ? (
           <span className="a-saved">
-            <Check size={14} /> تم الحفظ
+            <Check size={14} /> تم الحفظ وظهرت التغييرات على الموقع
           </span>
         ) : (
           <span className="row-sub">احفظ بعد الإضافة أو التعديل أو الحذف.</span>
         )}
-        <button type="submit" className="a-btn primary">
-          حفظ التغييرات
-        </button>
+        <SubmitButton pendingLabel="جارٍ الحفظ…">حفظ التغييرات</SubmitButton>
       </form>
 
       {open ? (

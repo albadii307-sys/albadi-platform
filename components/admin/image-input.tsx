@@ -3,6 +3,9 @@
 import { useRef, useState } from 'react';
 import { ImageIcon } from '@/components/icons';
 
+const MAX_BYTES = 8 * 1024 * 1024;
+const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
+
 export default function ImageInput({
   name,
   label,
@@ -18,6 +21,7 @@ export default function ImageInput({
 }) {
   const [value, setValue] = useState(defaultValue);
   const [preview, setPreview] = useState(defaultValue);
+  const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   return (
@@ -50,14 +54,27 @@ export default function ImageInput({
             ref={fileRef}
             type="file"
             name={`${name}_file`}
-            accept="image/*"
+            accept={ACCEPTED.join(',')}
             onChange={(event) => {
               const file = event.target.files?.[0];
-              if (file) setPreview(URL.createObjectURL(file));
+              if (!file) return;
+              if (!ACCEPTED.includes(file.type)) {
+                setError('صيغة غير مدعومة — استخدم JPG أو PNG أو WebP أو SVG.');
+                event.target.value = '';
+                return;
+              }
+              if (file.size > MAX_BYTES) {
+                setError('حجم الملف أكبر من 8 ميجابايت — صغّره ثم أعد المحاولة.');
+                event.target.value = '';
+                return;
+              }
+              setError('');
+              setPreview(URL.createObjectURL(file));
             }}
           />
         </div>
       </div>
+      {error ? <span className="field-error">{error}</span> : null}
       {help ? <span className="help">{help}</span> : null}
     </div>
   );

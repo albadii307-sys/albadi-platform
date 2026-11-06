@@ -2,8 +2,12 @@
 
 import { useState } from 'react';
 import { Check, ImageIcon, Plus, Trash, X } from '@/components/icons';
+import SubmitButton from './submit-button';
 
 type SectorRow = { id: string; name: string; slug: string; hero: string | null };
+
+const MAX_BYTES = 8 * 1024 * 1024;
+const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'];
 
 export default function GalleryManager({
   sectors,
@@ -20,6 +24,8 @@ export default function GalleryManager({
   const [images, setImages] = useState<string[]>([]);
   const [url, setUrl] = useState('');
   const [picked, setPicked] = useState<File[]>([]);
+  const [pickError, setPickError] = useState('');
+  const [dirty, setDirty] = useState(false);
 
   const sector = sectors.find((item) => item.id === openId) ?? null;
 
@@ -28,6 +34,8 @@ export default function GalleryManager({
     setImages(gallery[id] ?? []);
     setUrl('');
     setPicked([]);
+    setPickError('');
+    setDirty(false);
   };
 
   const close = () => {
@@ -41,7 +49,7 @@ export default function GalleryManager({
     <>
       <div className="a-toolbar">
         <span className="a-count">{sectors.length} قطاع</span>
-        {saved ? (
+        {saved && !dirty ? (
           <span className="a-saved">
             <Check size={14} /> تم الحفظ
           </span>
@@ -103,7 +111,10 @@ export default function GalleryManager({
                         type="button"
                         className="icon-btn danger"
                         aria-label="حذف الصورة"
-                        onClick={() => setImages((list) => list.filter((entry) => entry !== photo))}
+                        onClick={() => {
+                          setImages((list) => list.filter((entry) => entry !== photo));
+                          setDirty(true);
+                        }}
                       >
                         <Trash size={14} />
                       </button>
@@ -119,10 +130,22 @@ export default function GalleryManager({
                       id="gallery-files"
                       name="files"
                       type="file"
-                      accept="image/*"
+                      accept={ACCEPTED.join(',')}
                       multiple
-                      onChange={(event) => setPicked(Array.from(event.target.files ?? []))}
+                      onChange={(event) => {
+                        const files = Array.from(event.target.files ?? []);
+                        const valid = files.filter((file) => ACCEPTED.includes(file.type) && file.size <= MAX_BYTES);
+                        const skipped = files.length - valid.length;
+                        setPicked(valid);
+                        setPickError(
+                          skipped
+                            ? `تم تجاهل ${skipped} ملفاً: الصيغة أو الحجم غير مدعوم (الحد 8 ميجابايت).`
+                            : ''
+                        );
+                        setDirty(files.length > 0);
+                      }}
                     />
+                    {pickError ? <span className="field-error">{pickError}</span> : null}
                     {picked.length ? <span className="help">سيتم رفع {picked.length} صورة عند الحفظ.</span> : null}
                   </div>
                   <div className="a-field">
@@ -137,6 +160,7 @@ export default function GalleryManager({
                           if (!value) return;
                           setImages((list) => (list.includes(value) ? list : [...list, value]));
                           setUrl('');
+                          setDirty(true);
                         }}
                       >
                         إضافة
@@ -150,9 +174,9 @@ export default function GalleryManager({
                 <button type="button" className="a-btn" onClick={close}>
                   إلغاء
                 </button>
-                <button type="submit" className="a-btn primary">
+                <SubmitButton pendingLabel="جارٍ رفع الصور وحفظها…">
                   <Check size={15} /> حفظ الصور
-                </button>
+                </SubmitButton>
               </div>
             </form>
           </div>
