@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Locale } from '@/lib/types';
 import { ArrowLeft, ArrowRight, Download, FileText, ImageIcon, X } from './icons';
+import PdfThumb from './pdf-thumb';
 
 export type MediaEntry = {
   id: string;
@@ -154,14 +155,16 @@ export default function MediaGallery({ items, locale }: { items: MediaEntry[]; l
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <span className="x-md-file">
-                  <FileText size={26} />
-                  <span>PDF</span>
+                <span className="x-md-media">
+                  <PdfThumb url={item.url} title={item.title} />
+                  <span className="x-md-zoom" aria-hidden="true">
+                    <Download size={15} />
+                  </span>
                 </span>
                 <span className="x-md-cap">
                   <b>{item.title}</b>
                   <small>
-                    <Download size={13} /> {ar ? 'تحميل الملف' : 'Download'}
+                    <FileText size={13} /> {ar ? 'ملف PDF' : 'PDF'}
                   </small>
                 </span>
               </a>

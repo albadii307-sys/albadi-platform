@@ -5,6 +5,7 @@ import { Award, Check, Clock, ImageIcon, Upload, X } from '@/components/icons';
 import { saveSiteContent } from '@/app/admin/actions';
 import SubmitButton from '@/components/admin/submit-button';
 import UploadInput from '@/components/admin/upload-input';
+import { ThemeColorInput, ThemeRangeInput } from '@/components/admin/theme-fields';
 import { fontOptions } from '@/lib/site-settings';
 
 const socialFields = [
@@ -230,6 +231,64 @@ export default async function SettingsPage({
                   </>
                 );
               })()}
+            </div>
+          </div>
+
+          <div className="panel">
+            <div className="panel-head">
+              <h2>الهوية اللونية</h2>
+              <span className="row-sub">الألوان والشفافية تُطبَّق على الموقع العام بالكامل — اتركها كما هي للحفاظ على الهوية الحالية</span>
+            </div>
+            <div className="panel-body">
+              <div className="a-grid-2">
+                <ThemeColorInput
+                  id="theme_primary"
+                  name="theme_primary"
+                  label="اللون الأساسي (الأخضر الداكن)"
+                  defaultValue={settings.theme.primary}
+                  help="يُستخدم في الأقسام الداكنة والترويسة والعناوين الثانوية."
+                />
+                <ThemeColorInput
+                  id="theme_accent"
+                  name="theme_accent"
+                  label="لون التمييز (البرتقالي)"
+                  defaultValue={settings.theme.accent}
+                  help="الأزرار والروابط والتحديدات واللمسات المضيئة."
+                />
+                <ThemeColorInput
+                  id="theme_heading"
+                  name="theme_heading"
+                  label="لون العناوين"
+                  defaultValue={settings.theme.heading}
+                  help="عناوين البطاقات والأقسام على الخلفيات الفاتحة."
+                />
+                <ThemeColorInput
+                  id="theme_background"
+                  name="theme_background"
+                  label="لون الخلفية الفاتحة"
+                  defaultValue={settings.theme.background}
+                  help="خلفية الصفحات والأقسام الفاتحة والبطاقات."
+                />
+                <ThemeRangeInput
+                  id="theme_accent_opacity"
+                  name="theme_accent_opacity"
+                  label="شفافية اللون البرتقالي في الخلفيات"
+                  defaultValue={settings.theme.accentOpacity}
+                  help="100% ألوان كاملة، والقيم الأقل تجعل التوهجات واللمسات الشفافة أخف."
+                />
+                <ThemeRangeInput
+                  id="theme_overlay_opacity"
+                  name="theme_overlay_opacity"
+                  label="شفافية الطبقات الداكنة والظلال"
+                  defaultValue={settings.theme.overlayOpacity}
+                  help="تتحكم في كثافة الظلال والحدود والطبقات الداكنة فوق الصور."
+                />
+              </div>
+              <label className="brand-reset">
+                <input type="checkbox" name="reset_theme" />
+                استعادة الألوان الافتراضية عند الحفظ
+              </label>
+              <p className="a-help">بعد الحفظ افتح الموقع للتأكد من التباين، خصوصاً إن اخترت ألواناً بعيدة عن الأخضر والبرتقالي.</p>
             </div>
           </div>
 

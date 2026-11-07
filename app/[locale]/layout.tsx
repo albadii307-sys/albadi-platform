@@ -7,6 +7,7 @@ import { isLocale, getDict, locales, type Locale } from '@/lib/i18n';
 import { getCompanies, getSectors, getServices } from '@/lib/queries';
 import { getSiteSettings } from '@/lib/site-settings.server';
 import { fontOptions } from '@/lib/site-settings';
+import { themeCss } from '@/lib/theme';
 import { jsonLd, siteUrl } from '@/lib/jsonld';
 
 export const revalidate = 60;
@@ -105,7 +106,7 @@ export default async function LocaleLayout({
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(orgLd)} />
-      <style dangerouslySetInnerHTML={{ __html: typeCss }} />
+      <style dangerouslySetInnerHTML={{ __html: typeCss + themeCss(settings.theme) }} />
       <ScrollFX />
       <SiteHeader locale={locale} sectors={sectors} companies={companies} services={services} settings={settings} />
       <main id="main">{children}</main>

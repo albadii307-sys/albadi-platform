@@ -10,6 +10,7 @@ import { CompanyCard } from '@/components/company-grid';
 import { TeamCard } from '@/components/team-grid';
 import NewsRail, { Rail } from '@/components/news-rail';
 import ServicesIndex, { type ServiceGroupItem } from '@/components/services-index';
+import { serviceIconName } from '@/components/service-icon';
 import SiteMap from '@/components/site-map';
 import Timeline from '@/components/timeline';
 import WhySection from '@/components/why-section';
@@ -69,9 +70,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     services: serviceCount.get(sector.id) ?? 0,
     companies: companyCount.get(sector.id) ?? 0,
     image:
-      SECTOR_MEDIA[sector.slug]?.image ??
       sector.hero_url ??
       settings.gallery[sector.id]?.[0] ??
+      SECTOR_MEDIA[sector.slug]?.image ??
       '/media/projects/p4.webp',
     logo: SECTOR_MEDIA[sector.slug]?.logo ?? null,
   }));
@@ -98,7 +99,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       sectorSlug: sector?.slug ?? '',
       website: company.website,
       logo: company.logo_url,
-      photo: sector ? SECTOR_MEDIA[sector.slug]?.image ?? null : null,
+      photo: sector
+        ? sector.hero_url ?? settings.gallery[sector.id]?.[0] ?? SECTOR_MEDIA[sector.slug]?.image ?? null
+        : null,
     };
   });
 
@@ -107,12 +110,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       id: sector.id,
       slug: sector.slug,
       name: pick(sector, 'name', locale),
+      image:
+        sector.hero_url ??
+        settings.gallery[sector.id]?.[0] ??
+        SECTOR_MEDIA[sector.slug]?.image ??
+        null,
       services: services
         .filter((service) => service.sector_id === sector.id)
         .map((service) => ({
           id: service.id,
+          slug: service.slug,
           name: pick(service, 'name', locale),
           summary: pick(service, 'summary', locale),
+          icon: serviceIconName(settings.serviceIcons[service.id], sector.slug, service.slug),
         })),
     }))
     .filter((group) => group.services.length > 0);
@@ -417,6 +427,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     ? 'خدمات متخصصة موزّعة على قطاعات المجموعة — اختر خدمتك وأرسل الطلب مباشرة إلى فريقنا.'
                     : 'Specialised services across the group’s sectors — pick yours and send the request straight to our team.'}
                 </p>
+                <Link href={`/${locale}/services`} className="x-link">
+                  {ar ? 'كل الخدمات' : 'All services'} <Arrow size={16} />
+                </Link>
                 <Link href={`/${locale}/request`} className="x-link">
                   {t.nav.request} <Arrow size={16} />
                 </Link>

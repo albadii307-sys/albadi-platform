@@ -47,7 +47,7 @@ export default async function CompaniesPage({ params }: Params) {
       website: company.website,
       logo: company.logo_url,
       photo: sector
-        ? SECTOR_MEDIA[sector.slug]?.image ?? sector.hero_url ?? settings.gallery[sector.id]?.[0]
+        ? sector.hero_url ?? settings.gallery[sector.id]?.[0] ?? SECTOR_MEDIA[sector.slug]?.image
         : null,
     };
   });

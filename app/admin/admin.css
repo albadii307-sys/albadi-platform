@@ -514,6 +514,29 @@
   text-decoration: underline;
 }
 
+.alert-admin.success {
+  background: #edfaf1;
+  border-color: #b3e3c2;
+  color: #1c6b39;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-admin.success::before {
+  content: '✓';
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #1c6b39;
+  color: #fff;
+  font-size: 0.72rem;
+  flex-shrink: 0;
+}
+
 .req-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -1644,6 +1667,89 @@
   cursor: pointer;
 }
 
+.theme-color {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-color input[type='color'] {
+  width: 52px;
+  height: 38px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.theme-color code {
+  font-size: 0.78rem;
+  color: var(--muted);
+  background: var(--sand);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+.theme-range {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-range input[type='range'] {
+  flex: 1;
+  accent-color: var(--green-700);
+}
+
+.theme-range output {
+  min-width: 46px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--green-900);
+  background: var(--sand);
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.icon-choice {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: #4b5d52;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.icon-choice:hover {
+  border-color: var(--green-600);
+  color: var(--green-700);
+}
+
+.icon-choice.is-active {
+  border-color: var(--green-700);
+  background: var(--green-700);
+  color: #fff;
+}
+
+.icon-choice.auto {
+  width: auto;
+  padding: 0 12px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
 .brand-actions {
   display: flex;
   align-items: center;
@@ -2370,8 +2476,7 @@
   color: var(--green-950, #04170f);
 }
 
-.a-modal-close,
-.a-modal-float-close {
+.a-modal-close {
   display: grid;
   place-items: center;
   width: 34px;
@@ -2383,15 +2488,7 @@
   cursor: pointer;
 }
 
-.a-modal-float-close {
-  position: absolute;
-  inset-block-start: 12px;
-  inset-inline-end: 12px;
-  z-index: 5;
-}
-
-.a-modal-close:hover,
-.a-modal-float-close:hover {
+.a-modal-close:hover {
   background: #f2e6df;
   color: var(--accent, #e2601f);
 }

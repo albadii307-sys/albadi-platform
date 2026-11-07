@@ -7,7 +7,8 @@ export type FieldType =
   | 'number'
   | 'boolean'
   | 'date'
-  | 'relation';
+  | 'relation'
+  | 'icon';
 
 export type Field = {
   name: string;
@@ -98,6 +99,7 @@ export const collections: Record<string, Collection> = {
       { name: 'body_ar', label: 'تفاصيل إضافية (عربي)', type: 'richtext', full: true },
       { name: 'body_en', label: 'تفاصيل إضافية (إنجليزي)', type: 'richtext', full: true },
       { name: 'image_url', label: 'صورة الخدمة', type: 'image', full: true },
+      { name: 'icon', label: 'أيقونة الخدمة', type: 'icon', help: 'تظهر في بطاقات الخدمات والقوائم وصفحة الخدمة.' },
       { name: 'is_requestable', label: 'قابلة للطلب من الموقع', type: 'boolean' },
       orderField,
       publishField,

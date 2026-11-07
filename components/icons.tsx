@@ -312,3 +312,71 @@ export const Briefcase = (p: IconProps) => (
     <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18" />
   </svg>
 );
+
+export const Bed = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6M3 18h18M3 14h18" />
+    <path d="M7 10V7h6v3" />
+  </svg>
+);
+
+export const Road = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 21 8 3M20 21 16 3M12 4v3M12 11v3M12 18v3" />
+  </svg>
+);
+
+export const Wrench = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M14.7 6.3a4 4 0 0 0 5 5L11 20a2.8 2.8 0 0 1-4-4L15.7 7.3a4 4 0 0 1-1-1z" />
+    <path d="m9 15 2 2" />
+  </svg>
+);
+
+export const Zap = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />
+  </svg>
+);
+
+export const Droplet = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M12 3s6 6.3 6 11a6 6 0 0 1-12 0c0-4.7 6-11 6-11z" />
+  </svg>
+);
+
+export const Store = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M3 9 5 4h14l2 5M4 9v11h16V9" />
+    <path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0" />
+    <path d="M9 13h6v7H9z" />
+  </svg>
+);
+
+export const Ship = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M3 14 12 9l9 5-2 5a3 3 0 0 1-2.7 1.7H7.7A3 3 0 0 1 5 19l-2-5z" />
+    <path d="M12 9V4M8 4h8M4 22c2-1 4-1 6 0s4 1 6 0 4-1 6 0" />
+  </svg>
+);
+
+export const Mountain = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="m3 20 6-12 4 7 3-4 5 9H3z" />
+    <path d="m7 12 2 2 2-1" />
+  </svg>
+);
+
+export const Ruler = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="m4 15 11-11 5 5L9 20l-5-5z" />
+    <path d="m8 11 2 2M11 8l2 2M14 5l2 2" />
+  </svg>
+);
+
+export const Key = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="8" cy="8" r="4" />
+    <path d="m11 11 9 9M17 17l2-2M14 14l2-2" />
+  </svg>
+);

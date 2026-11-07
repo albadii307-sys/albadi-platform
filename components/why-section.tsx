@@ -30,7 +30,7 @@ export default function WhySection({
   if (!items.length) return null;
 
   return (
-    <section className="x-why">
+    <section className="x-why" id="why">
       <span className="x-why-photo" aria-hidden="true" />
       <span className="x-why-veil" aria-hidden="true" />
       <div className="container x-why-inner">

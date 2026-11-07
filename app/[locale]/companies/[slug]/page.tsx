@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import PhotoGallery from '@/components/photo-gallery';
 import ServiceGrid from '@/components/service-grid';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Globe, Phone } from '@/components/icons';
+import { serviceIconName } from '@/components/service-icon';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { jsonLd, siteUrl } from '@/lib/jsonld';
 import { getCompanies, getCompany, getProjects, getSectors, getServices } from '@/lib/queries';
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const name = pick(company, 'name', locale);
   const description = plain(pick(company, 'description', locale)).slice(0, 160);
   const cover = sector
-    ? SECTOR_MEDIA[sector.slug]?.image ?? sector.hero_url ?? settings.gallery[sector.id]?.[0]
+    ? sector.hero_url ?? settings.gallery[sector.id]?.[0] ?? SECTOR_MEDIA[sector.slug]?.image
     : null;
 
   return {
@@ -74,7 +75,7 @@ export default async function CompanyPage({ params }: Params) {
   const websiteLabel = website ? website.replace(/^https?:\/\//i, '').replace(/\/$/, '') : '';
 
   const cover = sector
-    ? SECTOR_MEDIA[sector.slug]?.image ?? sector.hero_url ?? settings.gallery[sector.id]?.[0]
+    ? sector.hero_url ?? settings.gallery[sector.id]?.[0] ?? SECTOR_MEDIA[sector.slug]?.image
     : null;
 
   const sectorServices = sector
@@ -287,6 +288,8 @@ export default async function CompanyPage({ params }: Params) {
                 <ServiceGrid
                   items={offeredServices.map((service) => ({
                     id: service.id,
+                    slug: service.slug,
+                    icon: serviceIconName(settings.serviceIcons[service.id], sector?.slug, service.slug),
                     name: pick(service, 'name', locale),
                     summary: pick(service, 'summary', locale),
                     requestable: service.is_requestable,

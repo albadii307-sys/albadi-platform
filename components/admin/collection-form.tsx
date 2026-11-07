@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import type { Collection } from '@/lib/collections';
 import { saveCollectionItem } from '@/app/admin/actions';
-import { ArrowLeft, ArrowUpRight } from '@/components/icons';
+import { ArrowUpRight } from '@/components/icons';
+import CollectionFormShell from './collection-form-shell';
+import IconPicker from './icon-picker';
 import ImageInput from './image-input';
 import RichEditor from './rich-editor';
 import SubmitButton from './submit-button';
@@ -13,11 +15,13 @@ export default function CollectionForm({
   row,
   relations,
   afterSave,
+  iconName,
 }: {
   collection: Collection;
   row?: Record<string, unknown>;
   relations: Record<string, Option[]>;
   afterSave?: string;
+  iconName?: string;
 }) {
   const action = saveCollectionItem.bind(null, collection.key, row ? String(row.id) : null);
   const value = (name: string) => {
@@ -39,7 +43,7 @@ export default function CollectionForm({
       : null;
 
   return (
-    <form action={action} className="a-form">
+    <CollectionFormShell action={action}>
       <div className="panel">
         <div className="panel-head">
           <h2>{row ? `تعديل: ${String(row[collection.titleField] ?? collection.singular)}` : `إضافة ${collection.singular}`}</h2>
@@ -49,9 +53,6 @@ export default function CollectionForm({
                 <ArrowUpRight size={14} /> عرض في الموقع
               </a>
             ) : null}
-            <Link href={afterSave ?? `/admin/collections/${collection.key}`} className="a-btn">
-              <ArrowLeft size={15} /> رجوع
-            </Link>
           </div>
         </div>
         <div className="panel-body">
@@ -95,6 +96,18 @@ export default function CollectionForm({
                       ))}
                     </select>
                   </div>
+                );
+              }
+
+              if (field.type === 'icon') {
+                return (
+                  <IconPicker
+                    key={field.name}
+                    name={field.name}
+                    label={field.label}
+                    defaultValue={iconName}
+                    help={field.help}
+                  />
                 );
               }
 
@@ -169,6 +182,6 @@ export default function CollectionForm({
         </Link>
         <SubmitButton>حفظ</SubmitButton>
       </div>
-    </form>
+    </CollectionFormShell>
   );
 }

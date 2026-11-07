@@ -6,6 +6,7 @@ import SectorCompanies from '@/components/sector-companies';
 import PhotoGallery from '@/components/photo-gallery';
 import { Counter } from '@/components/x-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Building, Check, Phone, Pin } from '@/components/icons';
+import { serviceIconName } from '@/components/service-icon';
 import { getDict, isLocale, pick, type Locale } from '@/lib/i18n';
 import { jsonLd, siteUrl } from '@/lib/jsonld';
 import { getCompanies, getProjects, getSector, getSectors, getServices } from '@/lib/queries';
@@ -248,6 +249,8 @@ export default async function SectorPage({ params }: Params) {
                 <ServiceGrid
                   items={services.map((service) => ({
                     id: service.id,
+                    slug: service.slug,
+                    icon: serviceIconName(settings.serviceIcons[service.id], sector.slug, service.slug),
                     name: pick(service, 'name', locale),
                     summary: pick(service, 'summary', locale),
                     requestable: service.is_requestable,

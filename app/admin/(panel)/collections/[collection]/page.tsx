@@ -7,13 +7,14 @@ import { Plus } from '@/components/icons';
 import CollectionTable, { type AdminTableRow } from '@/components/admin/collection-table';
 import { deleteCollectionItem } from '@/app/admin/actions';
 
-type Params = { params: Promise<{ collection: string }> };
+type Params = { params: Promise<{ collection: string }>; searchParams: Promise<{ saved?: string }> };
 
 const hiddenColumns = new Set(['id', 'created_at', 'updated_at', 'body_ar', 'body_en', 'is_published']);
 const imageKeys = ['cover_url', 'hero_url', 'logo_url', 'image_url', 'photo_url'];
 
-export default async function CollectionListPage({ params }: Params) {
+export default async function CollectionListPage({ params, searchParams }: Params) {
   const { collection: key } = await params;
+  const { saved } = await searchParams;
   const collection = collections[key];
   if (!collection) notFound();
 
@@ -87,6 +88,12 @@ export default async function CollectionListPage({ params }: Params) {
             <Plus size={15} /> إضافة {collection.singular}
           </Link>
         </div>
+
+        {saved ? (
+          <div className="alert-admin success" role="status" data-saved={saved}>
+            {saved === 'new' ? `تمت إضافة ${collection.singular} بنجاح.` : 'تم حفظ التعديل بنجاح.'}
+          </div>
+        ) : null}
 
         <CollectionTable
           rows={tableRows}

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { collections } from '@/lib/collections';
 import { getById } from '@/lib/db';
 import { getRelationOptions } from '@/lib/admin-data';
+import { getSiteSettings } from '@/lib/site-settings.server';
 import CollectionForm from '@/components/admin/collection-form';
 
 export default async function EditCollectionItemPage({
@@ -15,6 +16,7 @@ export default async function EditCollectionItemPage({
   const row = await getById<Record<string, unknown>>(collection.table, id);
   if (!row) notFound();
   const relations = await getRelationOptions();
+  const settings = collection.key === 'services' ? await getSiteSettings() : null;
 
   return (
     <>
@@ -23,7 +25,12 @@ export default async function EditCollectionItemPage({
         <span className="crumb">تعديل</span>
       </div>
       <div className="admin-content">
-        <CollectionForm collection={collection} row={row} relations={relations} />
+        <CollectionForm
+          collection={collection}
+          row={row}
+          relations={relations}
+          iconName={settings?.serviceIcons[String(row.id)]}
+        />
       </div>
     </>
   );

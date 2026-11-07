@@ -11,6 +11,7 @@ import { defaultTimeline, defaultWhy } from '@/lib/site-settings';
 import type { Setting } from '@/lib/types';
 
 export type LoginState = { error?: string };
+export type SaveState = { ok: true; redirectTo: string } | null;
 
 function slugify(value: string) {
   return value
@@ -33,7 +34,18 @@ export async function logoutAction() {
   redirect('/admin/login');
 }
 
-export async function saveCollectionItem(collectionKey: string, id: string | null, formData: FormData) {
+function revalidatePublicPages() {
+  revalidatePath('/', 'layout');
+  revalidatePath('/ar', 'layout');
+  revalidatePath('/en', 'layout');
+}
+
+export async function saveCollectionItem(
+  collectionKey: string,
+  id: string | null,
+  _prev: SaveState,
+  formData: FormData
+): Promise<SaveState> {
   await requireSession();
   const collection = collections[collectionKey];
   if (!collection) redirect('/admin');
@@ -41,6 +53,8 @@ export async function saveCollectionItem(collectionKey: string, id: string | nul
   const values: Record<string, unknown> = {};
 
   for (const field of collection.fields) {
+    if (field.type === 'icon') continue;
+
     if (field.type === 'image') {
       const file = formData.get(`${field.name}_file`);
       const url = String(formData.get(field.name) ?? '').trim();
@@ -76,15 +90,17 @@ export async function saveCollectionItem(collectionKey: string, id: string | nul
     values.published_at = new Date(String(values.published_at)).toISOString();
   }
 
-  if (id) {
-    await update(collection.table, id, values);
-  } else {
-    await insert(collection.table, values);
+  const saved = id
+    ? await update<Record<string, unknown>>(collection.table, id, values)
+    : await insert<Record<string, unknown>>(collection.table, values);
+
+  if (collectionKey === 'services') {
+    await saveServiceIcon(id ?? String(saved.id ?? ''), String(formData.get('icon') ?? '').trim());
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePublicPages();
   revalidatePath(`/admin/collections/${collectionKey}`);
-  redirect(`/admin/collections/${collectionKey}`);
+  return { ok: true, redirectTo: `/admin/collections/${collectionKey}?saved=${id ? 'edit' : 'new'}` };
 }
 
 export async function deleteCollectionItem(collectionKey: string, id: string) {
@@ -92,7 +108,8 @@ export async function deleteCollectionItem(collectionKey: string, id: string) {
   const collection = collections[collectionKey];
   if (!collection) redirect('/admin');
   await remove(collection.table, id);
-  revalidatePath('/', 'layout');
+  if (collectionKey === 'services') await saveServiceIcon(id, '');
+  revalidatePublicPages();
   revalidatePath(`/admin/collections/${collectionKey}`);
 }
 
@@ -121,7 +138,8 @@ export async function uploadMedia(formData: FormData) {
     }
   }
   revalidatePath('/admin/media');
-  revalidatePath('/media');
+  revalidatePath('/ar/media');
+  revalidatePath('/en/media');
 }
 
 async function setSetting(key: string, value: string) {
@@ -131,6 +149,25 @@ async function setSetting(key: string, value: string) {
   } else {
     await insert('settings', { key, value });
   }
+}
+
+async function readServiceIcons(): Promise<Record<string, string>> {
+  const existing = await getOne<Setting>('settings', { key: 'service_icons' });
+  if (!existing?.value) return {};
+  try {
+    const parsed = JSON.parse(existing.value);
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+async function saveServiceIcon(serviceId: string, icon: string) {
+  if (!serviceId) return;
+  const icons = await readServiceIcons();
+  if (icon) icons[serviceId] = icon;
+  else delete icons[serviceId];
+  await setSetting('service_icons', JSON.stringify(icons));
 }
 
 function cleanRows(raw: unknown, fallback: Record<string, string>[]): Record<string, string>[] {
@@ -190,14 +227,30 @@ export async function saveSiteContent(formData: FormData) {
     'type_line_height',
     'type_letter_spacing',
     'type_heading_weight',
+    'theme_primary',
+    'theme_accent',
+    'theme_heading',
+    'theme_background',
+    'theme_accent_opacity',
+    'theme_overlay_opacity',
   ];
+
+  const resetTheme = formData.get('reset_theme') === 'on';
+  const themeKeys = new Set([
+    'theme_primary',
+    'theme_accent',
+    'theme_heading',
+    'theme_background',
+    'theme_accent_opacity',
+    'theme_overlay_opacity',
+  ]);
 
   await setSetting('logo_url', logo);
   for (const key of plainKeys) {
-    await setSetting(key, text(key));
+    await setSetting(key, resetTheme && themeKeys.has(key) ? '' : text(key));
   }
 
-  revalidatePath('/', 'layout');
+  revalidatePublicPages();
   revalidatePath('/admin/settings');
   redirect('/admin/settings?saved=1');
 }
@@ -213,7 +266,7 @@ function rowsFrom(formData: FormData, field: string, fallback: Record<string, st
 export async function saveWhyCards(formData: FormData) {
   await requireSession();
   await setSetting('why_cards', JSON.stringify(rowsFrom(formData, 'rows', defaultWhy)));
-  revalidatePath('/', 'layout');
+  revalidatePublicPages();
   revalidatePath('/admin/content/why');
   redirect('/admin/content/why?saved=1');
 }
@@ -221,7 +274,7 @@ export async function saveWhyCards(formData: FormData) {
 export async function saveTimeline(formData: FormData) {
   await requireSession();
   await setSetting('timeline', JSON.stringify(rowsFrom(formData, 'rows', defaultTimeline)));
-  revalidatePath('/', 'layout');
+  revalidatePublicPages();
   revalidatePath('/admin/content/timeline');
   redirect('/admin/content/timeline?saved=1');
 }
@@ -263,7 +316,7 @@ export async function saveSectorGallery(formData: FormData) {
   }
 
   await setSetting('sector_gallery', JSON.stringify(gallery));
-  revalidatePath('/', 'layout');
+  revalidatePublicPages();
   revalidatePath('/admin/galleries');
   redirect('/admin/galleries?saved=1');
 }
@@ -306,7 +359,7 @@ export async function saveItemGallery(formData: FormData) {
   else delete gallery[key];
 
   await setSetting('item_gallery', JSON.stringify(gallery));
-  revalidatePath('/', 'layout');
+  revalidatePublicPages();
   revalidatePath('/admin/galleries');
   redirect(`/admin/galleries?type=${match[1] === 'news' ? 'news' : match[1] === 'company' ? 'companies' : 'projects'}&saved=1`);
 }

@@ -7,7 +7,7 @@ export default async function PanelLayout({
   modal,
 }: {
   children: React.ReactNode;
-  modal?: React.ReactNode;
+  modal: React.ReactNode;
 }) {
   const [session, logo] = await Promise.all([requireSession(), getSiteLogo()]);
   return (

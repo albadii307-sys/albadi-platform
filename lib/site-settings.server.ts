@@ -1,6 +1,7 @@
 import { list } from './db';
 import type { Setting } from './types';
 import {
+  defaultTheme,
   defaultTimeline,
   defaultTypography,
   defaultWhy,
@@ -11,8 +12,10 @@ import {
   type SiteSettings,
   type Typography,
 } from './site-settings';
+import { normalizeHex } from './theme';
 
 function numberSetting(raw: string | undefined, fallback: number, min: number, max: number) {
+  if (raw === undefined || raw.trim() === '') return fallback;
   const parsed = Number(raw);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, parsed));
@@ -65,5 +68,14 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     itemGallery: parseMap<Record<string, string[]>>(map.get('item_gallery'), {}),
     heroVideo: map.get('hero_video_url')?.trim() ?? '',
     typography,
+    theme: {
+      primary: normalizeHex(map.get('theme_primary') ?? '', defaultTheme.primary),
+      accent: normalizeHex(map.get('theme_accent') ?? '', defaultTheme.accent),
+      heading: normalizeHex(map.get('theme_heading') ?? '', defaultTheme.heading),
+      background: normalizeHex(map.get('theme_background') ?? '', defaultTheme.background),
+      accentOpacity: numberSetting(map.get('theme_accent_opacity'), defaultTheme.accentOpacity, 0, 100),
+      overlayOpacity: numberSetting(map.get('theme_overlay_opacity'), defaultTheme.overlayOpacity, 0, 100),
+    },
+    serviceIcons: parseMap<Record<string, string>>(map.get('service_icons'), {}),
   };
 }

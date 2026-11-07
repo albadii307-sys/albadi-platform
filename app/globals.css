@@ -36,7 +36,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--white);
+  background: var(--site-bg, var(--white));
   color: var(--ink);
   font-family: var(--site-body-font, var(--font-arabic), "Segoe UI", system-ui, -apple-system, sans-serif);
   font-size: 16px;

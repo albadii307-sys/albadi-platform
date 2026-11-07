@@ -61,9 +61,9 @@ export default async function SectorsPage({ params }: { params: Promise<{ locale
       services: names.length,
       companies: companyMap.get(sector.id) ?? 0,
       image:
-        SECTOR_MEDIA[sector.slug]?.image ??
         sector.hero_url ??
         settings.gallery[sector.id]?.[0] ??
+        SECTOR_MEDIA[sector.slug]?.image ??
         '/media/projects/p4.webp',
       logo: SECTOR_MEDIA[sector.slug]?.logo ?? null,
     };

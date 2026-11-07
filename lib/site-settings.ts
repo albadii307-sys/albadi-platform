@@ -52,6 +52,24 @@ export function isFontKey(value: string | undefined): value is FontKey {
   return fontOptions.some((font) => font.key === value);
 }
 
+export type Theme = {
+  primary: string;
+  accent: string;
+  heading: string;
+  background: string;
+  accentOpacity: number;
+  overlayOpacity: number;
+};
+
+export const defaultTheme: Theme = {
+  primary: '#07251a',
+  accent: '#e2601f',
+  heading: '#0b3526',
+  background: '#ffffff',
+  accentOpacity: 100,
+  overlayOpacity: 100,
+};
+
 export const socialMeta: { key: SocialKey; label: string }[] = [
   { key: 'instagram', label: 'Instagram' },
   { key: 'x', label: 'X (Twitter)' },
@@ -192,6 +210,8 @@ export type SiteSettings = {
   why: WhyCard[];
   timeline: Milestone[];
   typography: Typography;
+  theme: Theme;
+  serviceIcons: Record<string, string>;
 };
 
 export function parseJson<T>(raw: string | undefined, fallback: T): T {

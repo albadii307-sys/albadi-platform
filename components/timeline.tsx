@@ -20,7 +20,7 @@ export default function Timeline({
   if (!items.length) return null;
 
   return (
-    <section className="x-tl-sec" id="journey">
+    <section className="x-tl-sec" id="timeline">
       <div className="container">
         <div className="x-sec-head reveal">
           <div>

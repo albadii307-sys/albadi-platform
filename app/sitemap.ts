@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { getAllNews, getAllProjects, getCompanies, getSectors } from '@/lib/queries';
+import { getAllNews, getAllProjects, getAllServices, getCompanies, getSectors } from '@/lib/queries';
 import { locales } from '@/lib/i18n';
 import { siteUrl } from '@/lib/jsonld';
 
@@ -11,6 +11,7 @@ const staticPaths = [
   '/vision',
   '/sectors',
   '/companies',
+  '/services',
   '/projects',
   '/news',
   '/csr',
@@ -37,11 +38,12 @@ function entry(site: string, path: string, lastModified?: string): MetadataRoute
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const site = siteUrl();
-  const [sectors, companies, projects, news] = await Promise.all([
+  const [sectors, companies, projects, news, services] = await Promise.all([
     getSectors(),
     getCompanies(),
     getAllProjects(),
     getAllNews(),
+    getAllServices(),
   ]);
 
   const rows: MetadataRoute.Sitemap = staticPaths.flatMap((path) => entry(site, path));
@@ -50,6 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   for (const company of companies) rows.push(...entry(site, `/companies/${company.slug}`));
   for (const project of projects) rows.push(...entry(site, `/projects/${project.slug}`));
   for (const item of news) rows.push(...entry(site, `/news/${item.slug}`, item.published_at));
+  for (const service of services) rows.push(...entry(site, `/services/${service.slug}`));
 
   return rows;
 }

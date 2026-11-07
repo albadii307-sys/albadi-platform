@@ -15,7 +15,7 @@ export default async function InterceptedNewCollectionItem({
   const relations = await getRelationOptions();
 
   return (
-    <ModalShell>
+    <ModalShell path={`/admin/collections/${collection.key}/new`}>
       <CollectionForm collection={collection} relations={relations} afterSave={`/admin/collections/${collection.key}`} />
     </ModalShell>
   );

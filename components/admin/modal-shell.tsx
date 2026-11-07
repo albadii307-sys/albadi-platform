@@ -1,13 +1,15 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { X } from '@/components/icons';
 
-export default function ModalShell({ children }: { children: React.ReactNode }) {
+export default function ModalShell({ path, children }: { path?: string; children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const active = !path || pathname === path;
 
   useEffect(() => {
+    if (!active) return;
     const close = (event: KeyboardEvent) => {
       if (event.key === 'Escape') router.back();
     };
@@ -17,7 +19,9 @@ export default function ModalShell({ children }: { children: React.ReactNode }) 
       document.removeEventListener('keydown', close);
       document.body.style.overflow = '';
     };
-  }, [router]);
+  }, [router, active]);
+
+  if (!active) return null;
 
   return (
     <div
@@ -29,9 +33,6 @@ export default function ModalShell({ children }: { children: React.ReactNode }) 
       }}
     >
       <div className="a-modal-card wide">
-        <button type="button" className="a-modal-float-close" onClick={() => router.back()} aria-label="إغلاق النافذة">
-          <X size={18} />
-        </button>
         {children}
       </div>
     </div>
